@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Owl Post</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#17120d">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#17120d;--card:#2a2118;--ink:#ecdcb8;--mute:#a8967a;--gold:#c9a24b;--wax:#9a1f1f;--line:#4a3b2a}
+:root[data-theme=light]{--bg:#efe3c6;--card:#f8efd9;--ink:#2b2013;--mute:#77634a;--gold:#8a6a1c;--line:#cdb98f}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.5 'EB Garamond',Georgia,serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+main{max-width:480px;margin:0 auto;padding:20px}
+h1,h2{font-family:Cinzel,serif;margin:0 0 8px;color:var(--gold)}
+h1{font-size:28px}h2{font-size:20px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin:14px 0}
+button{font:inherit;font-weight:500;background:var(--gold);color:#17120d;border:0;border-radius:8px;padding:12px 16px;min-height:48px}
+button.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+input{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:48px;width:100%}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:8px 0}
+.row>button{flex:1}.row input{flex:2}
+.hide{display:none!important}
+.seal{width:96px;height:96px;margin:22px auto;border-radius:50%;background:radial-gradient(circle at 35% 30%,#c23a3a,var(--wax) 60%,#5c1010);display:grid;place-items:center;color:#f1d9a0;font:700 40px Cinzel,serif;box-shadow:0 4px 14px #0008}
+#send{width:100%;font-size:24px;font-family:Cinzel,serif;background:var(--wax);color:#f6e4b8;padding:22px}
+#howler{position:fixed;inset:0;background:#000d;display:grid;place-items:center;z-index:9;padding:20px}
+.env{background:#b32424;border:3px solid #e8c978;border-radius:6px;padding:26px 20px;max-width:380px;text-align:center;color:#fbefcf;animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
+.env h2{color:#fbefcf;font-size:26px}
+.env button{margin:6px;background:#fbefcf;color:#5c1010}
+@keyframes pop{from{transform:scale(.3) rotate(-8deg)}to{transform:none}}
+@media(prefers-reduced-motion:reduce){.env{animation:none}}
+small{color:var(--mute)}
+</style></head><body><main>
+<div class="row"><h1>Owl Post</h1><button class="ghost" id="theme" aria-label="Switch light or dark">Light</button></div>
+
+<section id="setup">
+ <div class="card"><h2>Whose phone is this?</h2>
+  <p>Pick a role and enter the same pairing code on both phones.</p>
+  <input id="code" placeholder="Pairing code, e.g. phoenix42" autocapitalize="off">
+  <div class="row"><button data-role="mum">Mum's phone</button><button data-role="son" class="ghost">My phone</button></div>
+  <small id="cfgwarn" class="hide">Fill in firebase-config.js first.</small></div>
+</section>
+
+<section id="mum" class="hide">
+ <div class="seal">P</div>
+ <div class="card"><h2>Pill times</h2><div id="times"></div>
+  <div class="row"><input type="time" id="newtime"><button id="addtime">Add time</button></div></div>
+ <div class="card"><h2>Reminders</h2><p>Allow notifications so the owl can find you.</p>
+  <button id="notif">Allow notifications</button> <small id="notifmsg"></small></div>
+</section>
+
+<section id="son" class="hide">
+ <div class="card"><h2>Mum's pill</h2><p id="status">Waiting for news.</p></div>
+ <button id="send">Send a howler</button>
+ <p><small>She sees a red envelope asking if she took her pill.</small></p>
+</section>
+
+<button class="ghost" id="reset" style="margin-top:24px">Change role or code</button>
+</main>
+
+<div id="howler" class="hide"><div class="env">
+ <h2>Have you taken your pill?</h2><p>Your pill is waiting. Please take it now.</p>
+ <button id="taken">Taken</button><button id="notyet">Not yet</button></div></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
+<script src="firebase-config.js"></script>
+<script>
+const $=s=>document.querySelector(s), ls=localStorage;
+let role=ls.role, code=ls.code, ref, data={times:[]}, fired='';
+
+// Theme: dark by default, toggle to light
+const setTheme=t=>{document.documentElement.dataset.theme=t;ls.theme=t;$('#theme').textContent=t==='dark'?'Light':'Dark'};
+setTheme(ls.theme||'dark');
+$('#theme').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+
+const ok=!self.FIREBASE_CONFIG.apiKey.startsWith('PASTE');
+if(!ok)$('#cfgwarn').classList.remove('hide');
+
+function show(id){['setup','mum','son'].forEach(s=>$('#'+s).classList.toggle('hide',s!==id));$('#reset').classList.toggle('hide',id==='setup')}
+document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{
+  const c=$('#code').value.trim().toLowerCase();
+  if(!c||!ok)return;
+  ls.role=role=b.dataset.role; ls.code=code=c; start();
+});
+$('#reset').onclick=()=>{delete ls.role;delete ls.code;location.reload()};
+
+function start(){
+  if(!ok||!role||!code)return show('setup');
+  firebase.initializeApp(self.FIREBASE_CONFIG);
+  // Firestore doc: pillPairs/{code} = {times:[], howlerAt, takenAt, mumToken}
+  // TOMORROW: add rules for the pillPairs collection (rules.txt)
+  ref=firebase.firestore().collection('pillPairs').doc(code);
+  ref.set({},{merge:true});
+  ref.onSnapshot(s=>{data=s.data()||{times:[]};data.times=data.times||[];render();checkHowler()});
+  show(role);
+  if(role==='mum')setInterval(checkAlarm,20000);
+}
+
+function render(){
+  $('#times').innerHTML=data.times.map(t=>`<div class="row"><span>${t}</span><button class="ghost" data-t="${t}" style="flex:0">Remove</button></div>`).join('')||'<p>No times yet. Add the first one below.</p>';
+  document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>ref.update({times:firebase.firestore.FieldValue.arrayRemove(b.dataset.t)}));
+  const t=data.takenAt;
+  $('#status').textContent=t?'Last marked taken: '+new Date(t).toLocaleString():'No pill marked taken yet.';
+}
+$('#addtime').onclick=()=>{const v=$('#newtime').value;if(v)ref.update({times:firebase.firestore.FieldValue.arrayUnion(v)})};
+
+// Sender: trigger howler
+$('#send').onclick=()=>{
+  ref.update({howlerAt:Date.now()});
+  // NEXT FILE: worker.js sends the push when her app is closed
+  if(self.WORKER_URL)fetch(self.WORKER_URL+'/howler',{method:'POST',body:JSON.stringify({code})}).catch(()=>{});
+  $('#send').textContent='Howler sent';setTimeout(()=>$('#send').textContent='Send a howler',2500);
+};
+
+// Receiver: show howler when a new one arrives
+function checkHowler(){
+  if(role!=='mum'||!data.howlerAt||data.howlerAt<=+(ls.seen||0))return;
+  ls.seen=data.howlerAt;$('#howler').classList.remove('hide');
+  navigator.vibrate&&navigator.vibrate([400,150,400]);
+}
+$('#taken').onclick=()=>{ref.update({takenAt:Date.now()});$('#howler').classList.add('hide')};
+$('#notyet').onclick=()=>$('#howler').classList.add('hide'); // TOMORROW: optionally notify sender on "Not yet"
+
+// Receiver: fallback alarm while app is open (closed-app alarms come from worker.js)
+function checkAlarm(){
+  const n=new Date(),hm=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
+  if(data.times.includes(hm)&&fired!==hm){fired=hm;
+    navigator.serviceWorker.ready.then(r=>r.showNotification('Owl Post',{body:'Time for your pill.',icon:'icon-192.png',tag:'pill',requireInteraction:true}))}
+}
+
+// Receiver: enable push, save token for worker.js
+$('#notif').onclick=async()=>{
+  try{
+    if(await Notification.requestPermission()!=='granted')return $('#notifmsg').textContent='Notifications are blocked in phone settings.';
+    const reg=await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    const token=await firebase.messaging().getToken({vapidKey:self.VAPID_KEY,serviceWorkerRegistration:reg});
+    await ref.update({mumToken:token});$('#notifmsg').textContent='Notifications are on.';
+  }catch(e){$('#notifmsg').textContent='Could not turn on. Check VAPID key.'}
+};
+if('serviceWorker' in navigator)navigator.serviceWorker.register('firebase-messaging-sw.js');
+start();
+</script></body></html>
