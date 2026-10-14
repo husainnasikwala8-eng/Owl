@@ -6,21 +6,18 @@ importScripts(
 firebase.initializeApp(self.FIREBASE_CONFIG);
 const messaging = firebase.messaging();
 
-// NOTE for worker.js: send DATA-ONLY messages ({title, body, tag, type}).
-// If a "notification" field is included, FCM shows it itself and this handler is skipped.
 messaging.onBackgroundMessage(p => {
   const d = p.data || {};
   self.registration.showNotification(d.title || 'Owl Post', {
-    body: d.body || 'Time for your pill.',
+    body: d.body || 'MARIA, HAVE YOU TAKEN YOUR MEDICINES OR NOT?',
     icon: 'icon-192.png',
     tag: d.tag || 'pill',
     requireInteraction: true,
-    vibrate: [200, 100, 200],
+    vibrate: [500, 200, 500, 200, 800],
     data: { type: d.type || 'alarm' }
   });
 });
 
-// Tapping the notification opens the app.
 self.addEventListener('notificationclick', e => {
   e.notification.close();
   e.waitUntil(clients.matchAll({ type: 'window' }).then(c =>
