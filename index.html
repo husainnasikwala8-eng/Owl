@@ -1,145 +1,511 @@
 <!DOCTYPE html>
-<html lang="en"><head>
+<html lang="en">
+<head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Owl Post</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>Owl Post — Howler Reminder</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#17120d">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=EB+Garamond:wght@400;500&display=swap" rel="stylesheet">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#17120d;--card:#2a2118;--ink:#ecdcb8;--mute:#a8967a;--gold:#c9a24b;--wax:#9a1f1f;--line:#4a3b2a}
+:root{--bg:#17120d;--card:#2a2118;--ink:#ecdcb8;--mute:#a8967a;--gold:#c9a24b;--wax:#9a1f1f;--wax-bright:#d62828;--line:#4a3b2a;--ok:#2e7d32}
 :root[data-theme=light]{--bg:#efe3c6;--card:#f8efd9;--ink:#2b2013;--mute:#77634a;--gold:#8a6a1c;--line:#cdb98f}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.5 'EB Garamond',Georgia,serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
-main{max-width:480px;margin:0 auto;padding:20px}
-h1,h2{font-family:Cinzel,serif;margin:0 0 8px;color:var(--gold)}
-h1{font-size:28px}h2{font-size:20px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin:14px 0}
-button{font:inherit;font-weight:500;background:var(--gold);color:#17120d;border:0;border-radius:8px;padding:12px 16px;min-height:48px}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.5 'EB Garamond',Georgia,serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);user-select:none}
+main{max-width:480px;margin:0 auto;padding:18px}
+h1,h2,h3{font-family:Cinzel,serif;margin:0 0 8px;color:var(--gold)}
+h1{font-size:26px}h2{font-size:19px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0;box-shadow:0 4px 12px #0006}
+button{font:inherit;font-weight:600;background:var(--gold);color:#17120d;border:0;border-radius:8px;padding:12px 16px;min-height:48px;cursor:pointer;transition:transform .1s}
+button:active{transform:scale(.97)}
 button.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
-button:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+button.danger{background:var(--wax);color:#fbefcf}
+button.sat-btn{background:linear-gradient(135deg,#7b2cbf,#c9a24b);color:#fff;width:100%;margin-top:10px}
 input{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:48px;width:100%}
 .row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:8px 0}
 .row>button{flex:1}.row input{flex:2}
 .hide{display:none!important}
-.seal{width:96px;height:96px;margin:22px auto;border-radius:50%;background:radial-gradient(circle at 35% 30%,#c23a3a,var(--wax) 60%,#5c1010);display:grid;place-items:center;color:#f1d9a0;font:700 40px Cinzel,serif;box-shadow:0 4px 14px #0008}
-#send{width:100%;font-size:24px;font-family:Cinzel,serif;background:var(--wax);color:#f6e4b8;padding:22px}
-#howler{position:fixed;inset:0;background:#000d;display:grid;place-items:center;z-index:9;padding:20px}
-.env{background:#b32424;border:3px solid #e8c978;border-radius:6px;padding:26px 20px;max-width:380px;text-align:center;color:#fbefcf;animation:pop .5s cubic-bezier(.3,1.6,.5,1)}
-.env h2{color:#fbefcf;font-size:26px}
-.env button{margin:6px;background:#fbefcf;color:#5c1010}
-@keyframes pop{from{transform:scale(.3) rotate(-8deg)}to{transform:none}}
-@media(prefers-reduced-motion:reduce){.env{animation:none}}
+.seal{width:92px;height:92px;margin:14px auto;border-radius:50%;background:radial-gradient(circle at 35% 30%,#c23a3a,var(--wax) 60%,#5c1010);display:grid;place-items:center;color:#f1d9a0;font:800 38px Cinzel,serif;box-shadow:0 4px 16px #000a;border:2px solid #e8c97855}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:14px;font-weight:600;background:#0005;border:1px solid var(--line)}
+.badge.nag{background:#9a1f1f;color:#fff;border-color:#ff6b6b;animation:pulse 1.2s infinite}
+#send{width:100%;font-size:22px;font-family:Cinzel,serif;background:var(--wax);color:#f6e4b8;padding:18px;border:2px solid #e8c978}
+
+/* HOWLER OVERLAY & ANIMATION */
+#howler{position:fixed;inset:0;background:radial-gradient(circle,#3a0808ee,#090202fc);display:grid;place-items:center;z-index:999;padding:18px}
+.env{background:linear-gradient(145deg,#c91e1e,#7a0c0c);border:4px solid #e8c978;border-radius:12px;padding:28px 20px;max-width:400px;width:100%;text-align:center;color:#fbefcf;box-shadow:0 0 50px #ff1e1e88;animation:shake .45s infinite alternate}
+.env.saturday{background:linear-gradient(145deg,#5a189a,#3c096c);border-color:#ffd166;box-shadow:0 0 50px #ffd16666}
+.env h2{color:#fbefcf;font-size:25px;text-transform:uppercase;letter-spacing:1px}
+.mouth{font-size:64px;line-height:1;margin:10px 0;display:inline-block;animation:chomp .35s infinite alternate}
+.env-btns{display:flex;flex-direction:column;gap:12px;margin-top:18px}
+.btn-yes{background:#2e7d32!important;color:#fff!important;font-size:22px;padding:16px;border:2px solid #a5d6a7!important}
+.btn-no{background:#3d0c0c!important;color:#ffccd5!important;border:1px solid #ff758f!important;font-size:17px}
+.sat-box{background:#0006;border:1px solid #ffd166;border-radius:8px;padding:12px;margin:12px 0;font-size:18px}
+@keyframes shake{0%{transform:rotate(-2deg) scale(1)}50%{transform:rotate(2deg) scale(1.03)}100%{transform:rotate(-1deg) scale(0.99)}}
+@keyframes chomp{from{transform:scaleY(0.75) scaleX(1.1)}to{transform:scaleY(1.25) scaleX(0.95)}}
+@keyframes pulse{50%{opacity:.5}}
 small{color:var(--mute)}
-</style></head><body><main>
-<div class="row"><h1>Owl Post</h1><button class="ghost" id="theme" aria-label="Switch light or dark">Light</button></div>
+</style>
+</head>
+<body>
+<main>
+<div class="row">
+  <h1>🦉 Owl Post</h1>
+  <button class="ghost" id="theme" style="min-height:38px;padding:6px 12px">Light</button>
+</div>
 
+<!-- SETUP SCREEN -->
 <section id="setup">
- <div class="card"><h2>Whose phone is this?</h2>
-  <p>Pick a role and enter the same pairing code on both phones.</p>
-  <input id="code" placeholder="Pairing code, e.g. phoenix42" autocapitalize="off">
-  <div class="row"><button data-role="mum">Mum's phone</button><button data-role="son" class="ghost">My phone</button></div>
-  <small id="cfgwarn" class="hide">Fill in firebase-config.js first.</small></div>
+  <div class="card">
+    <h2>Connect Phones</h2>
+    <p>Enter the same secret pairing code (8+ letters/numbers) on both phones.</p>
+    <input id="code" placeholder="e.g. hogwarts786" autocapitalize="off">
+    <div class="row" style="margin-top:14px">
+      <button data-role="mum">Mum's Phone (Maria)</button>
+      <button data-role="son" class="ghost">My Phone (Admin)</button>
+    </div>
+    <small id="cfgwarn" class="hide" style="color:#ff6b6b;display:block;margin-top:8px">
+      ⚠️ Paste your Firebase apiKey in firebase-config.js first!
+    </small>
+  </div>
 </section>
 
+<!-- MUM'S PHONE VIEW -->
 <section id="mum" class="hide">
- <div class="seal">P</div>
- <div class="card"><h2>Pill times</h2><div id="times"></div>
-  <div class="row"><input type="time" id="newtime"><button id="addtime">Add time</button></div></div>
- <div class="card"><h2>Reminders</h2><p>Allow notifications so the owl can find you.</p>
-  <button id="notif">Allow notifications</button> <small id="notifmsg"></small></div>
+  <div class="seal">M</div>
+  <div class="card" style="text-align:center">
+    <h2 id="mum-greeting">Daily Medicine Watch</h2>
+    <p id="mum-sub">The Owl Post will sound at your scheduled medicine times.</p>
+    <button id="took" style="width:100%;background:#2e7d32;color:#fff;font-size:21px;padding:16px">
+      ✅ Yes, I Took My Medicine
+    </button>
+  </div>
+
+  <div class="card">
+    <h2>Scheduled Medicine Times</h2>
+    <div id="mum-times"></div>
+  </div>
+
+  <div class="card">
+    <h2>Step 1: Keep Sound & Alerts Active</h2>
+    <p>Tap below so the Howler voice can speak loudly even when the screen sits idle.</p>
+    <button id="arm-audio" style="width:100%">🔊 Activate Howler Voice & Wake Lock</button>
+    <small id="arm-msg" style="display:block;margin-top:6px"></small>
+  </div>
+
+  <div class="card">
+    <h2>Step 2: Background Ringing (ntfy)</h2>
+    <p>In the free <b>ntfy</b> app on this phone, subscribe to this exact topic so Howlers ring even if this screen is closed:</p>
+    <p style="background:#0004;padding:10px;border-radius:6px;font-family:monospace;font-size:18px"><b id="topic-mum"></b></p>
+    <button id="notif" class="ghost" style="width:100%">Allow Browser Notifications</button>
+    <small id="notifmsg"></small>
+  </div>
 </section>
 
+<!-- SON'S (ADMIN) PHONE VIEW -->
 <section id="son" class="hide">
- <div class="card"><h2>Mum's pill</h2><p id="status">Waiting for news.</p></div>
- <button id="send">Send a howler</button>
- <p><small>She sees a red envelope asking if she took her pill.</small></p>
+  <div class="card">
+    <div class="row">
+      <h2>Maria's Status</h2>
+      <span id="nag-badge" class="badge">Idle</span>
+    </div>
+    <p id="status" style="font-size:20px;margin:8px 0">Waiting for connection...</p>
+    <small id="sub-status"></small>
+  </div>
+
+  <button id="send">📮 SEND DIRECT HOWLER NOW</button>
+  <button id="send-sat" class="sat-btn">✨ Send Saturday "Methora" Howler (Arthritis Dose)</button>
+  <button id="stop-nag" class="ghost hide" style="width:100%;margin-top:10px;border-color:#ff6b6b;color:#ff6b6b">
+    🛑 Stop 10-Min Nagging Loop Manually
+  </button>
+
+  <div class="card">
+    <h2>Set Maria's 3 Daily Times</h2>
+    <p><small>Changes sync immediately to her phone. On Saturdays, the Methora message activates automatically.</small></p>
+    <div id="son-times"></div>
+    <div class="row">
+      <input type="time" id="newtime">
+      <button id="addtime">Add Time</button>
+    </div>
+    <button id="preset3" class="ghost" style="width:100%;margin-top:6px;font-size:16px">
+      ⚡ Load Default 3 Times (09:00, 14:00, 21:00)
+    </button>
+  </div>
+
+  <div class="card">
+    <h2>Get Alerts on Your Phone</h2>
+    <p>Subscribe to this topic in your <b>ntfy</b> app to get instant alerts when Maria clicks Yes or No:</p>
+    <p style="background:#0004;padding:10px;border-radius:6px;font-family:monospace;font-size:18px"><b id="topic-son"></b></p>
+  </div>
 </section>
 
-<button class="ghost" id="reset" style="margin-top:24px">Change role or code</button>
+<button class="ghost" id="reset" style="margin-top:20px;width:100%;font-size:15px">Switch Phone Role / Pairing Code</button>
 </main>
 
-<div id="howler" class="hide"><div class="env">
- <h2>Have you taken your pill?</h2><p>Your pill is waiting. Please take it now.</p>
- <button id="taken">Taken</button><button id="notyet">Not yet</button></div></div>
+<!-- FULLSCREEN HOWLER POPUP -->
+<div id="howler" class="hide">
+  <div class="env" id="env-box">
+    <div id="sealed">
+      <div class="mouth">✉️🔥</div>
+      <h2>A HOWLER HAS ARRIVED!</h2>
+      <p style="font-size:20px">From Husain — Do not ignore!</p>
+      <button id="open" style="width:100%;font-size:22px;background:#fbefcf;color:#7a0c0c;padding:16px">
+        OPEN HOWLER
+      </button>
+    </div>
+
+    <div id="msg" class="hide">
+      <div class="mouth">👄🔊</div>
+      <h2 id="howler-title">"MARIA, HAVE YOU TAKEN YOUR MEDICINES OR NOT?"</h2>
+      <div id="sat-notice" class="sat-box hide">
+        <b>🌟 Saturday Special — Methora Dose:</b><br>
+        Maria, today is Saturday. This is your <b>Methora</b> medicine for your knee arthritis. Do not be frightened—take it calmly with water. It is safe and will help heal your knee pain!
+      </div>
+      <p id="howler-sub">If you press "No", this Howler will return every 10 minutes until you take it!</p>
+      <div class="env-btns">
+        <button id="taken" class="btn-yes">✅ YES, I TOOK IT!</button>
+        <button id="notyet" class="btn-no">⏳ No, Not Yet (Remind in 10 mins)</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
 <script src="firebase-config.js"></script>
 <script>
-const $=s=>document.querySelector(s), ls=localStorage;
-let role=ls.role, code=ls.code, ref, data={times:[]}, fired='';
+const $ = s => document.querySelector(s), ls = localStorage;
+let role = ls.role, code = ls.code, ref, data = { times: [] }, firedMinute = '';
+let audioCtx, voiceTimer, sirenTimer, localNagTimer;
 
-// Theme: dark by default, toggle to light
-const setTheme=t=>{document.documentElement.dataset.theme=t;ls.theme=t;$('#theme').textContent=t==='dark'?'Light':'Dark'};
-setTheme(ls.theme||'dark');
-$('#theme').onclick=()=>setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark');
+// Theme setup
+const setTheme = t => { document.documentElement.dataset.theme = t; ls.theme = t; $('#theme').textContent = t === 'dark' ? 'Light' : 'Dark'; };
+setTheme(ls.theme || 'dark');
+$('#theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
 
-const ok=!self.FIREBASE_CONFIG.apiKey.startsWith('PASTE');
-if(!ok)$('#cfgwarn').classList.remove('hide');
+const ok = self.FIREBASE_CONFIG && !self.FIREBASE_CONFIG.apiKey.startsWith('PASTE');
+if (!ok) $('#cfgwarn').classList.remove('hide');
 
-function show(id){['setup','mum','son'].forEach(s=>$('#'+s).classList.toggle('hide',s!==id));$('#reset').classList.toggle('hide',id==='setup')}
-document.querySelectorAll('[data-role]').forEach(b=>b.onclick=()=>{
-  const c=$('#code').value.trim().toLowerCase();
-  if(!c||!ok)return;
-  ls.role=role=b.dataset.role; ls.code=code=c; start();
+function show(id) {
+  ['setup', 'mum', 'son'].forEach(s => $('#' + s).classList.toggle('hide', s !== id));
+  $('#reset').classList.toggle('hide', id === 'setup');
+}
+
+document.querySelectorAll('[data-role]').forEach(b => b.onclick = () => {
+  const c = $('#code').value.trim().toLowerCase();
+  if (c.length < 6 || !ok) { $('#code').value = ''; $('#code').placeholder = 'Enter 6+ char code (& check firebase-config.js)'; return; }
+  ls.role = role = b.dataset.role; ls.code = code = c; start();
 });
-$('#reset').onclick=()=>{delete ls.role;delete ls.code;location.reload()};
 
-function start(){
-  if(!ok||!role||!code)return show('setup');
-  firebase.initializeApp(self.FIREBASE_CONFIG);
-  // Firestore doc: pillPairs/{code} = {times:[], howlerAt, takenAt, mumToken}
-  // TOMORROW: add rules for the pillPairs collection (rules.txt)
-  ref=firebase.firestore().collection('pillPairs').doc(code);
-  ref.set({},{merge:true});
-  ref.onSnapshot(s=>{data=s.data()||{times:[]};data.times=data.times||[];render();checkHowler()});
+$('#reset').onclick = () => { if (confirm('Reset role on this phone?')) { delete ls.role; delete ls.code; location.reload(); } };
+
+// Wake Lock & Audio Unlocker for Mum's Phone
+$('#arm-audio').onclick = async () => {
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    await audioCtx.resume();
+    speakHowler("Howler voice connected for Maria.", false);
+    if ('wakeLock' in navigator) await navigator.wakeLock.request('screen').catch(()=>{});
+    $('#arm-msg').textContent = '✅ Voice & Screen Wake Lock active!';
+    $('#arm-audio').textContent = '🔊 Howler Voice Ready';
+  } catch (e) { $('#arm-msg').textContent = 'Tap again to enable audio.'; }
+};
+
+function start() {
+  if (!ok || !role || !code) return show('setup');
+  if (!firebase.apps.length) firebase.initializeApp(self.FIREBASE_CONFIG);
+  ref = firebase.firestore().collection('pillPairs').doc(code);
+  ref.set({ updated: Date.now() }, { merge: true });
+
+  ref.onSnapshot(s => {
+    data = s.data() || { times: [] };
+    data.times = (data.times || []).sort();
+    render();
+    checkHowler();
+  });
+
   show(role);
-  if(role==='mum')setInterval(checkAlarm,20000);
+  $('#topic-mum').textContent = 'owlpost-' + code;
+  $('#topic-son').textContent = 'owlpost-' + code + '-son';
+  setInterval(tickLoop, 15000);
 }
 
-function render(){
-  $('#times').innerHTML=data.times.map(t=>`<div class="row"><span>${t}</span><button class="ghost" data-t="${t}" style="flex:0">Remove</button></div>`).join('')||'<p>No times yet. Add the first one below.</p>';
-  document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>ref.update({times:firebase.firestore.FieldValue.arrayRemove(b.dataset.t)}));
-  const t=data.takenAt;
-  $('#status').textContent=t?'Last marked taken: '+new Date(t).toLocaleString():'No pill marked taken yet.';
-}
-$('#addtime').onclick=()=>{const v=$('#newtime').value;if(v)ref.update({times:firebase.firestore.FieldValue.arrayUnion(v)})};
+function render() {
+  // Render times on both phones
+  const timesHtml = data.times.map(t =>
+    `<div class="row"><span>⏰ <b>${t}</b></span>${role === 'son' ? `<button class="ghost" data-t="${t}" style="flex:0;min-height:36px;padding:6px 12px">Remove</button>` : ''}</div>`
+  ).join('') || '<p><small>No daily times set yet.</small></p>';
 
-// Sender: trigger howler
-$('#send').onclick=()=>{
-  ref.update({howlerAt:Date.now()});
-  // NEXT FILE: worker.js sends the push when her app is closed
-  if(self.WORKER_URL)fetch(self.WORKER_URL+'/howler',{method:'POST',body:JSON.stringify({code})}).catch(()=>{});
-  $('#send').textContent='Howler sent';setTimeout(()=>$('#send').textContent='Send a howler',2500);
+  $('#mum-times').innerHTML = timesHtml;
+  $('#son-times').innerHTML = timesHtml;
+
+  document.querySelectorAll('[data-t]').forEach(b => b.onclick = () =>
+    ref.update({ times: firebase.firestore.FieldValue.arrayRemove(b.dataset.t) })
+  );
+
+  // Saturday check on Mum's dashboard
+  const isSat = new Date().getDay() === 6;
+  if (isSat) {
+    $('#mum-greeting').textContent = '🌟 Saturday: Methora Dose Day';
+    $('#mum-sub').textContent = 'Special high-dose knee arthritis medicine today. Do not be afraid—it helps your knees!';
+  }
+
+  // Son's live status display
+  const badge = $('#nag-badge');
+  if (data.nagging) {
+    badge.textContent = '🔥 NAGGING EVERY 10M';
+    badge.className = 'badge nag';
+    $('#stop-nag').classList.remove('hide');
+  } else {
+    badge.textContent = '✅ All Clear';
+    badge.className = 'badge';
+    $('#stop-nag').classList.add('hide');
+  }
+
+  if (data.lastStatus === 'not_yet' && data.nagging) {
+    $('#status').textContent = '⚠️ Maria pressed "NO (Not Yet)" at ' + new Date(data.lastNotYetAt).toLocaleTimeString();
+    $('#sub-status').textContent = 'Howler is repeating every 10 minutes until she takes it.';
+  } else if (data.takenAt) {
+    $('#status').textContent = '✅ Maria took her medicine at ' + new Date(data.takenAt).toLocaleString();
+    $('#sub-status').textContent = data.lastTakenType === 'saturday' ? 'Included Saturday Methora Arthritis Dose!' : 'Regular daily dose confirmed.';
+  } else {
+    $('#status').textContent = 'Waiting for today\'s first dose.';
+  }
+}
+
+// Son controls: Add times & Presets
+$('#addtime').onclick = () => {
+  const v = $('#newtime').value;
+  if (v) ref.update({ times: firebase.firestore.FieldValue.arrayUnion(v) });
+};
+$('#preset3').onclick = () => {
+  ref.update({ times: ['09:00', '14:00', '21:00'] });
 };
 
-// Receiver: show howler when a new one arrives
-function checkHowler(){
-  if(role!=='mum'||!data.howlerAt||data.howlerAt<=+(ls.seen||0))return;
-  ls.seen=data.howlerAt;$('#howler').classList.remove('hide');
-  navigator.vibrate&&navigator.vibrate([400,150,400]);
-}
-$('#taken').onclick=()=>{ref.update({takenAt:Date.now()});$('#howler').classList.add('hide')};
-$('#notyet').onclick=()=>$('#howler').classList.add('hide'); // TOMORROW: optionally notify sender on "Not yet"
+// Trigger Howler helper (used by Son button, scheduled times, and 10-min nag)
+function triggerHowlerNow(type = 'regular', reason = 'Manual Howler') {
+  const isSat = type === 'saturday' || new Date().getDay() === 6;
+  const mode = isSat ? 'saturday' : 'regular';
+  const now = Date.now();
 
-// Receiver: fallback alarm while app is open (closed-app alarms come from worker.js)
-function checkAlarm(){
-  const n=new Date(),hm=String(n.getHours()).padStart(2,'0')+':'+String(n.getMinutes()).padStart(2,'0');
-  if(data.times.includes(hm)&&fired!==hm){fired=hm;
-    navigator.serviceWorker.ready.then(r=>r.showNotification('Owl Post',{body:'Time for your pill.',icon:'icon-192.png',tag:'pill',requireInteraction:true}))}
+  ref.update({
+    howlerAt: now,
+    howlerMode: mode,
+    nagging: true,
+    nextNagAt: now + 10 * 60 * 1000
+  });
+
+  const msgBody = mode === 'saturday'
+    ? 'MARIA, HAVE YOU TAKEN YOUR MEDICINES OR NOT? Today is Saturday — take your Methora knee arthritis medicine calmly!'
+    : 'MARIA, HAVE YOU TAKEN YOUR MEDICINES OR NOT? Tap to answer the Howler!';
+
+  // Immediate push to Mum's phone via ntfy.sh
+  fetch('https://ntfy.sh/owlpost-' + code, {
+    method: 'POST',
+    body: msgBody,
+    headers: {
+      Title: mode === 'saturday' ? '🌟 SATURDAY METHORA HOWLER!' : '🦉 A HOWLER HAS ARRIVED!',
+      Priority: 'max',
+      Tags: 'envelope,warning',
+      Click: location.origin + location.pathname
+    }
+  }).catch(() => {});
 }
 
-// Receiver: enable push, save token for worker.js
-$('#notif').onclick=async()=>{
-  try{
-    if(await Notification.requestPermission()!=='granted')return $('#notifmsg').textContent='Notifications are blocked in phone settings.';
-    const reg=await navigator.serviceWorker.register('firebase-messaging-sw.js');
-    const token=await firebase.messaging().getToken({vapidKey:self.VAPID_KEY,serviceWorkerRegistration:reg});
-    await ref.update({mumToken:token});$('#notifmsg').textContent='Notifications are on.';
-  }catch(e){$('#notifmsg').textContent='Could not turn on. Check VAPID key.'}
+$('#send').onclick = () => {
+  triggerHowlerNow('regular');
+  $('#send').textContent = '🔥 HOWLER SENT TO MARIA!';
+  setTimeout(() => $('#send').textContent = '📮 SEND DIRECT HOWLER NOW', 2500);
 };
-if('serviceWorker' in navigator)navigator.serviceWorker.register('firebase-messaging-sw.js');
+
+$('#send-sat').onclick = () => {
+  triggerHowlerNow('saturday');
+  $('#send-sat').textContent = '✨ SATURDAY METHORA HOWLER SENT!';
+  setTimeout(() => $('#send-sat').textContent = '✨ Send Saturday "Methora" Howler (Arthritis Dose)', 2500);
+};
+
+$('#stop-nag').onclick = () => {
+  ref.update({ nagging: false, nextNagAt: 0 });
+};
+
+// Sound & Speech Engine ("Maria, have you taken your medicines or not?")
+function playSirenBurst() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    audioCtx.resume();
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc.type = 'sawtooth';
+    osc.frequency.setValueAtTime(320, audioCtx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(620, audioCtx.currentTime + 0.35);
+    osc.frequency.exponentialRampToValueAtTime(280, audioCtx.currentTime + 0.7);
+    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.75);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + 0.75);
+  } catch (e) {}
+}
+
+function speakHowler(text, loop = true) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 0.95;
+  utter.pitch = 1.05;
+  utter.volume = 1.0;
+  window.speechSynthesis.speak(utter);
+}
+
+function startHowlerAudio(mode) {
+  stopHowlerAudio();
+  const speechText = mode === 'saturday'
+    ? "Maria, have you taken your medicines or not? Today is Saturday. Please take your Methora medicine for your knee arthritis. Do not be scared, it will make your knees feel much better!"
+    : "Maria, have you taken your medicines or not? Please take your medicine right now!";
+
+  playSirenBurst();
+  speakHowler(speechText);
+  if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 800]);
+
+  voiceTimer = setInterval(() => {
+    playSirenBurst();
+    speakHowler(speechText);
+    if (navigator.vibrate) navigator.vibrate([500, 200, 500]);
+  }, 7500);
+}
+
+function stopHowlerAudio() {
+  clearInterval(voiceTimer);
+  clearInterval(sirenTimer);
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+}
+
+// Receiver: Show Howler on Mum's Phone
+function checkHowler() {
+  if (role !== 'mum' || !data.howlerAt) return;
+  if (!data.nagging) {
+    $('#howler').classList.add('hide');
+    stopHowlerAudio();
+    return;
+  }
+  if (data.howlerAt <= +(ls.seen || 0)) return;
+
+  ls.seen = data.howlerAt;
+  const isSat = data.howlerMode === 'saturday' || new Date().getDay() === 6;
+  $('#env-box').classList.toggle('saturday', isSat);
+  $('#sat-notice').classList.toggle('hide', !isSat);
+  $('#howler').classList.remove('hide');
+  // Open immediately and start speaking so she hears it right away
+  $('#sealed').classList.add('hide');
+  $('#msg').classList.remove('hide');
+  startHowlerAudio(isSat ? 'saturday' : 'regular');
+}
+
+$('#open').onclick = () => {
+  $('#sealed').classList.add('hide');
+  $('#msg').classList.remove('hide');
+  const isSat = data.howlerMode === 'saturday' || new Date().getDay() === 6;
+  startHowlerAudio(isSat ? 'saturday' : 'regular');
+};
+
+// When Maria clicks YES (Taken)
+function markTaken() {
+  stopHowlerAudio();
+  clearTimeout(localNagTimer);
+  const isSat = data.howlerMode === 'saturday' || new Date().getDay() === 6;
+  $('#howler').classList.add('hide');
+  ref.update({
+    takenAt: Date.now(),
+    nagging: false,
+    nextNagAt: 0,
+    lastStatus: 'taken',
+    lastTakenType: isSat ? 'saturday' : 'regular'
+  });
+
+  // Notify Son's phone
+  fetch('https://ntfy.sh/owlpost-' + code + '-son', {
+    method: 'POST',
+    body: isSat ? '✅ Maria just took her Saturday Methora medicine!' : '✅ Maria just took her daily medicine!',
+    headers: { Title: 'Owl Post Confirmation', Tags: 'white_check_mark' }
+  }).catch(() => {});
+}
+
+$('#taken').onclick = markTaken;
+$('#took').onclick = markTaken;
+
+// When Maria clicks NO (Not Yet) -> Triggers 10-Minute Relentless Nagging
+$('#notyet').onclick = () => {
+  stopHowlerAudio();
+  $('#howler').classList.add('hide');
+  const now = Date.now(), nextNag = now + 10 * 60 * 1000;
+  const isSat = data.howlerMode === 'saturday' || new Date().getDay() === 6;
+
+  ref.update({
+    lastStatus: 'not_yet',
+    lastNotYetAt: now,
+    nagging: true,
+    nextNagAt: nextNag
+  });
+
+  // 1. Alert Son's phone immediately that she clicked NO
+  fetch('https://ntfy.sh/owlpost-' + code + '-son', {
+    method: 'POST',
+    body: '⚠️ Maria clicked NO (Not Yet)! The Howler will scream again in 10 minutes.',
+    headers: { Title: 'Maria Missed Medicine!', Priority: 'high', Tags: 'warning' }
+  }).catch(() => {});
+
+  // 2. Schedule a 10-minute delayed push on ntfy.sh (works even if both apps are closed!)
+  fetch('https://ntfy.sh/owlpost-' + code, {
+    method: 'POST',
+    body: '10 minutes are up! MARIA, HAVE YOU TAKEN YOUR MEDICINES OR NOT?',
+    headers: {
+      Title: '🦉 HOWLER REMINDER (10 MIN NAG)',
+      Priority: 'max',
+      Delay: '10m',
+      Tags: 'rotating_light',
+      Click: location.origin + location.pathname
+    }
+  }).catch(() => {});
+
+  // 3. Local 10-minute fallback timer
+  clearTimeout(localNagTimer);
+  localNagTimer = setTimeout(() => {
+    if (data.nagging) triggerHowlerNow(isSat ? 'saturday' : 'regular', '10m Nag');
+  }, 10 * 60 * 1000);
+};
+
+// Check 3 Daily Scheduled Times & 10-Minute Nagging Loop every 15 seconds
+function tickLoop() {
+  const n = new Date();
+  const hm = String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0');
+
+  // Fire at scheduled daily times
+  if (data.times && data.times.includes(hm) && firedMinute !== hm) {
+    firedMinute = hm;
+    triggerHowlerNow(n.getDay() === 6 ? 'saturday' : 'regular', 'Scheduled Time');
+  }
+
+  // Re-fire Howler if 10-minute nag timer has expired and she still hasn't taken it
+  if (data.nagging && data.nextNagAt && Date.now() >= data.nextNagAt) {
+    triggerHowlerNow(data.howlerMode || 'regular', '10m Nag Repeat');
+  }
+}
+
+// Browser Notification Permission
+$('#notif').onclick = async () => {
+  try {
+    if (await Notification.requestPermission() !== 'granted') return $('#notifmsg').textContent = 'Blocked in settings.';
+    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js');
+    $('#notifmsg').textContent = '✅ Browser notifications enabled!';
+    if (self.VAPID_KEY && !self.VAPID_KEY.startsWith('PASTE')) {
+      const token = await firebase.messaging().getToken({ vapidKey: self.VAPID_KEY, serviceWorkerRegistration: reg });
+      await ref.update({ mumToken: token });
+    }
+  } catch (e) { $('#notifmsg').textContent = 'Notifications enabled for local alarms.'; }
+};
+
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('firebase-messaging-sw.js');
 start();
-</script></body></html>
+</script>
+</body>
+</html>
