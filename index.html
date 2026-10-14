@@ -3,48 +3,76 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>Owl Post — Howler Reminder</title>
+<title>Owl Post — 3D Movie Howler</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#17120d">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=EB+Garamond:wght@500;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#17120d;--card:#2a2118;--ink:#ecdcb8;--mute:#a8967a;--gold:#c9a24b;--wax:#9a1f1f;--wax-bright:#d62828;--line:#4a3b2a;--ok:#2e7d32}
-:root[data-theme=light]{--bg:#efe3c6;--card:#f8efd9;--ink:#2b2013;--mute:#77634a;--gold:#8a6a1c;--line:#cdb98f}
-*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.5 'EB Garamond',Georgia,serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);user-select:none}
-main{max-width:480px;margin:0 auto;padding:18px}
-h1,h2,h3{font-family:Cinzel,serif;margin:0 0 8px;color:var(--gold)}
+:root{--bg:#17120d;--card:#2a2118;--ink:#ecdcb8;--mute:#a8967a;--gold:#c9a24b;--wax:#9a1f1f;--line:#4a3b2a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+body{margin:0;background:var(--bg);color:var(--ink);font:19px/1.45 'EB Garamond',Georgia,serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);overflow-x:hidden}
+main{max-width:480px;margin:0 auto;padding:16px}
+h1,h2{font-family:Cinzel,serif;margin:0 0 8px;color:var(--gold)}
 h1{font-size:26px}h2{font-size:19px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:14px 0;box-shadow:0 4px 12px #0006}
-button{font:inherit;font-weight:600;background:var(--gold);color:#17120d;border:0;border-radius:8px;padding:12px 16px;min-height:48px;cursor:pointer;transition:transform .1s}
-button:active{transform:scale(.97)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin:12px 0;box-shadow:0 4px 14px #0008}
+button{font:inherit;font-weight:700;background:var(--gold);color:#17120d;border:0;border-radius:8px;padding:14px 16px;min-height:50px;cursor:pointer;transition:transform .1s}
+button:active{transform:scale(.96)}
 button.ghost{background:none;border:1px solid var(--line);color:var(--ink)}
-button.danger{background:var(--wax);color:#fbefcf}
-button.sat-btn{background:linear-gradient(135deg,#7b2cbf,#c9a24b);color:#fff;width:100%;margin-top:10px}
+button.sat-btn{background:linear-gradient(135deg,#6a0dad,#c9a24b);color:#fff;width:100%;margin-top:10px}
 input{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:10px;min-height:48px;width:100%}
 .row{display:flex;gap:10px;align-items:center;justify-content:space-between;margin:8px 0}
 .row>button{flex:1}.row input{flex:2}
 .hide{display:none!important}
-.seal{width:92px;height:92px;margin:14px auto;border-radius:50%;background:radial-gradient(circle at 35% 30%,#c23a3a,var(--wax) 60%,#5c1010);display:grid;place-items:center;color:#f1d9a0;font:800 38px Cinzel,serif;box-shadow:0 4px 16px #000a;border:2px solid #e8c97855}
-.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:14px;font-weight:600;background:#0005;border:1px solid var(--line)}
-.badge.nag{background:#9a1f1f;color:#fff;border-color:#ff6b6b;animation:pulse 1.2s infinite}
-#send{width:100%;font-size:22px;font-family:Cinzel,serif;background:var(--wax);color:#f6e4b8;padding:18px;border:2px solid #e8c978}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:14px;font-weight:700;background:#0006;border:1px solid var(--line)}
+.badge.nag{background:#d90429;color:#fff;border-color:#ffccd5;animation:strobe .5s infinite alternate}
+#send{width:100%;font-size:22px;font-family:Cinzel,serif;background:#b80c09;color:#fff;padding:20px;border:3px solid #ffd166;box-shadow:0 0 25px #b80c09aa}
 
-/* HOWLER OVERLAY & ANIMATION */
-#howler{position:fixed;inset:0;background:radial-gradient(circle,#3a0808ee,#090202fc);display:grid;place-items:center;z-index:999;padding:18px}
-.env{background:linear-gradient(145deg,#c91e1e,#7a0c0c);border:4px solid #e8c978;border-radius:12px;padding:28px 20px;max-width:400px;width:100%;text-align:center;color:#fbefcf;box-shadow:0 0 50px #ff1e1e88;animation:shake .45s infinite alternate}
-.env.saturday{background:linear-gradient(145deg,#5a189a,#3c096c);border-color:#ffd166;box-shadow:0 0 50px #ffd16666}
-.env h2{color:#fbefcf;font-size:25px;text-transform:uppercase;letter-spacing:1px}
-.mouth{font-size:64px;line-height:1;margin:10px 0;display:inline-block;animation:chomp .35s infinite alternate}
-.env-btns{display:flex;flex-direction:column;gap:12px;margin-top:18px}
-.btn-yes{background:#2e7d32!important;color:#fff!important;font-size:22px;padding:16px;border:2px solid #a5d6a7!important}
-.btn-no{background:#3d0c0c!important;color:#ffccd5!important;border:1px solid #ff758f!important;font-size:17px}
-.sat-box{background:#0006;border:1px solid #ffd166;border-radius:8px;padding:12px;margin:12px 0;font-size:18px}
-@keyframes shake{0%{transform:rotate(-2deg) scale(1)}50%{transform:rotate(2deg) scale(1.03)}100%{transform:rotate(-1deg) scale(0.99)}}
-@keyframes chomp{from{transform:scaleY(0.75) scaleX(1.1)}to{transform:scaleY(1.25) scaleX(0.95)}}
-@keyframes pulse{50%{opacity:.5}}
+/* 3D MOVIE HOWLER FULLSCREEN STAGE */
+#howler{
+  position:fixed;inset:0;width:100vw;height:100vh;z-index:2147483647;
+  background:radial-gradient(circle at center,#4a0404 0%,#080101 100%);
+  overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;
+}
+#howler.saturday{
+  background:radial-gradient(circle at center,#4c1070 0%,#09010f 100%);
+}
+#howler-canvas{
+  position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none;
+}
+.howler-hud-top{
+  position:relative;z-index:2;text-align:center;padding:18px 14px 0;pointer-events:none;
+}
+.subtitles{
+  font-family:Cinzel,serif;font-weight:900;font-size:23px;line-height:1.2;
+  color:#fff8e7;text-shadow:0 3px 0 #000,0 0 22px #ff1e1e,0 0 40px #ffd166;
+  background:rgba(20,0,0,0.68);border:2px solid #ffd166aa;border-radius:12px;
+  padding:10px 14px;max-width:440px;margin:0 auto;
+  animation:subPulse .22s infinite alternate;
+}
+.sat-banner{
+  background:rgba(35,5,55,0.88);border:2px solid #ffd166;border-radius:10px;
+  padding:10px 12px;margin:8px auto 0;max-width:440px;font-size:17px;color:#ffd166;
+  text-shadow:0 2px 4px #000;
+}
+.howler-hud-bottom{
+  position:relative;z-index:2;padding:12px 16px calc(18px + env(safe-area-inset-bottom));
+  max-width:460px;width:100%;margin:0 auto;display:flex;flex-direction:column;gap:10px;
+}
+.btn-took-massive{
+  background:linear-gradient(180deg,#2ec4b6,#0f6b61)!important;
+  color:#fff!important;font-size:24px!important;font-family:Cinzel,serif;
+  padding:18px!important;border:3px solid #fff!important;border-radius:14px;
+  box-shadow:0 6px 30px #000d;
+}
+.btn-no-massive{
+  background:rgba(40,0,0,0.85)!important;color:#ffccd5!important;
+  border:2px solid #ff4d6d!important;font-size:18px!important;padding:13px!important;
+  border-radius:12px;backdrop-filter:blur(4px);
+}
+@keyframes subPulse{from{transform:scale(0.98)}to{transform:scale(1.02)}}
+@keyframes strobe{from{opacity:1}to{opacity:.35}}
 small{color:var(--mute)}
 </style>
 </head>
@@ -52,77 +80,79 @@ small{color:var(--mute)}
 <main>
 <div class="row">
   <h1>🦉 Owl Post</h1>
-  <button class="ghost" id="theme" style="min-height:38px;padding:6px 12px">Light</button>
+  <span id="keepalive-pill" class="badge">Standby</span>
 </div>
 
-<!-- SETUP SCREEN -->
+<!-- SETUP -->
 <section id="setup">
   <div class="card">
     <h2>Connect Phones</h2>
-    <p>Enter the same secret pairing code (8+ letters/numbers) on both phones.</p>
+    <p>Enter the same secret pairing code (6+ characters) on both phones.</p>
     <input id="code" placeholder="e.g. hogwarts786" autocapitalize="off">
     <div class="row" style="margin-top:14px">
-      <button data-role="mum">Mum's Phone (Maria)</button>
+      <button data-role="mum">Maria's Phone</button>
       <button data-role="son" class="ghost">My Phone (Admin)</button>
     </div>
-    <small id="cfgwarn" class="hide" style="color:#ff6b6b;display:block;margin-top:8px">
-      ⚠️ Paste your Firebase apiKey in firebase-config.js first!
-    </small>
   </div>
 </section>
 
-<!-- MUM'S PHONE VIEW -->
+<!-- MARIA'S PHONE -->
 <section id="mum" class="hide">
-  <div class="seal">M</div>
+  <div class="card" style="border:2px solid #ffd166;background:#3b1111">
+    <h2>⚠️ Step 1: Arm 24/7 3D Howler</h2>
+    <p style="margin:6px 0">Tap once so Maria's phone stays awake in the background and launches the 3D Howler <b>instantly</b>:</p>
+    <button id="arm-audio" style="width:100%;font-size:19px;background:#ffd166;color:#3b1111">
+      🔒 ARM ALWAYS-ON 3D HOWLER
+    </button>
+    <small id="arm-msg" style="color:#ffd166;display:block;margin-top:8px"></small>
+  </div>
+
   <div class="card" style="text-align:center">
-    <h2 id="mum-greeting">Daily Medicine Watch</h2>
-    <p id="mum-sub">The Owl Post will sound at your scheduled medicine times.</p>
-    <button id="took" style="width:100%;background:#2e7d32;color:#fff;font-size:21px;padding:16px">
-      ✅ Yes, I Took My Medicine
+    <h2 id="mum-greeting">Maria's Daily Medicine</h2>
+    <button id="took" style="width:100%;background:#2e7d32;color:#fff;font-size:22px;padding:18px;margin-top:8px">
+      ✅ YES, I TOOK MY MEDICINE
+    </button>
+    <button id="preview-mum" class="ghost" style="width:100%;margin-top:10px">
+      🎬 Preview 3D Movie Howler Animation
     </button>
   </div>
 
   <div class="card">
-    <h2>Scheduled Medicine Times</h2>
+    <h2>Daily Medicine Times</h2>
     <div id="mum-times"></div>
   </div>
 
   <div class="card">
-    <h2>Step 1: Keep Sound & Alerts Active</h2>
-    <p>Tap below so the Howler voice can speak loudly even when the screen sits idle.</p>
-    <button id="arm-audio" style="width:100%">🔊 Activate Howler Voice & Wake Lock</button>
-    <small id="arm-msg" style="display:block;margin-top:6px"></small>
-  </div>
-
-  <div class="card">
-    <h2>Step 2: Background Ringing (ntfy)</h2>
-    <p>In the free <b>ntfy</b> app on this phone, subscribe to this exact topic so Howlers ring even if this screen is closed:</p>
-    <p style="background:#0004;padding:10px;border-radius:6px;font-family:monospace;font-size:18px"><b id="topic-mum"></b></p>
-    <button id="notif" class="ghost" style="width:100%">Allow Browser Notifications</button>
+    <h2>Background Push Topic (ntfy)</h2>
+    <p>In the <b>ntfy</b> app on Maria's phone, subscribe to:</p>
+    <p style="background:#0006;padding:10px;border-radius:6px;font-family:monospace;font-size:18px"><b id="topic-mum"></b></p>
+    <button id="notif" class="ghost" style="width:100%">Enable Browser Alerts</button>
     <small id="notifmsg"></small>
   </div>
 </section>
 
-<!-- SON'S (ADMIN) PHONE VIEW -->
+<!-- SON'S ADMIN PHONE -->
 <section id="son" class="hide">
   <div class="card">
     <div class="row">
-      <h2>Maria's Status</h2>
+      <h2>Maria's Live Status</h2>
       <span id="nag-badge" class="badge">Idle</span>
     </div>
-    <p id="status" style="font-size:20px;margin:8px 0">Waiting for connection...</p>
+    <p id="status" style="font-size:20px;margin:8px 0">Connected.</p>
     <small id="sub-status"></small>
   </div>
 
-  <button id="send">📮 SEND DIRECT HOWLER NOW</button>
-  <button id="send-sat" class="sat-btn">✨ Send Saturday "Methora" Howler (Arthritis Dose)</button>
-  <button id="stop-nag" class="ghost hide" style="width:100%;margin-top:10px;border-color:#ff6b6b;color:#ff6b6b">
-    🛑 Stop 10-Min Nagging Loop Manually
+  <button id="send">🔥 BLAST 3D HOWLER TO MARIA</button>
+  <button id="send-sat" class="sat-btn">🌟 Blast Saturday "Methora" 3D Howler</button>
+  <button id="preview-son" class="ghost" style="width:100%;margin-top:10px">
+    🎬 Test 3D Movie Howler On My Phone
+  </button>
+  <button id="stop-nag" class="ghost hide" style="width:100%;margin-top:10px;border-color:#ff4d6d;color:#ff4d6d">
+    🛑 Silence Howler / Stop 10-Min Nagging
   </button>
 
   <div class="card">
-    <h2>Set Maria's 3 Daily Times</h2>
-    <p><small>Changes sync immediately to her phone. On Saturdays, the Methora message activates automatically.</small></p>
+    <h2>Set Maria's 3 Daily Medicine Times</h2>
     <div id="son-times"></div>
     <div class="row">
       <input type="time" id="newtime">
@@ -134,43 +164,37 @@ small{color:var(--mute)}
   </div>
 
   <div class="card">
-    <h2>Get Alerts on Your Phone</h2>
-    <p>Subscribe to this topic in your <b>ntfy</b> app to get instant alerts when Maria clicks Yes or No:</p>
-    <p style="background:#0004;padding:10px;border-radius:6px;font-family:monospace;font-size:18px"><b id="topic-son"></b></p>
+    <h2>Your Phone Alerts (ntfy)</h2>
+    <p>Subscribe in your <b>ntfy</b> app to get instant replies:</p>
+    <p style="background:#0006;padding:10px;border-radius:6px;font-family:monospace;font-size:18px"><b id="topic-son"></b></p>
   </div>
 </section>
 
-<button class="ghost" id="reset" style="margin-top:20px;width:100%;font-size:15px">Switch Phone Role / Pairing Code</button>
+<button class="ghost" id="reset" style="margin-top:24px;width:100%;font-size:15px">Change Phone Role / Code</button>
 </main>
 
-<!-- FULLSCREEN HOWLER POPUP -->
+<!-- FULLSCREEN 3D WEBGL MOVIE HOWLER STAGE -->
 <div id="howler" class="hide">
-  <div class="env" id="env-box">
-    <div id="sealed">
-      <div class="mouth">✉️🔥</div>
-      <h2>A HOWLER HAS ARRIVED!</h2>
-      <p style="font-size:20px">From Husain — Do not ignore!</p>
-      <button id="open" style="width:100%;font-size:22px;background:#fbefcf;color:#7a0c0c;padding:16px">
-        OPEN HOWLER
-      </button>
-    </div>
+  <canvas id="howler-canvas"></canvas>
 
-    <div id="msg" class="hide">
-      <div class="mouth">👄🔊</div>
-      <h2 id="howler-title">"MARIA, HAVE YOU TAKEN YOUR MEDICINES OR NOT?"</h2>
-      <div id="sat-notice" class="sat-box hide">
-        <b>🌟 Saturday Special — Methora Dose:</b><br>
-        Maria, today is Saturday. This is your <b>Methora</b> medicine for your knee arthritis. Do not be frightened—take it calmly with water. It is safe and will help heal your knee pain!
-      </div>
-      <p id="howler-sub">If you press "No", this Howler will return every 10 minutes until you take it!</p>
-      <div class="env-btns">
-        <button id="taken" class="btn-yes">✅ YES, I TOOK IT!</button>
-        <button id="notyet" class="btn-no">⏳ No, Not Yet (Remind in 10 mins)</button>
-      </div>
+  <div class="howler-hud-top">
+    <div class="subtitles" id="howler-title">
+      "MARIA!! HAVE YOU TAKEN YOUR MEDICINES OR NOT?!"
     </div>
+    <div id="sat-notice" class="sat-banner hide">
+      🌟 <b>SATURDAY METHORA ARTHRITIS DOSE:</b><br>
+      Maria, do not be frightened of your Saturday <b>Methora</b> tablet! Take it calmly now—it heals your knee arthritis!
+    </div>
+  </div>
+
+  <div class="howler-hud-bottom">
+    <button id="taken" class="btn-took-massive">✅ YES, I TOOK IT!</button>
+    <button id="notyet" class="btn-no-massive">❌ NO, NOT YET (Remind in 10 mins)</button>
   </div>
 </div>
 
+<!-- Three.js 3D Engine + Firebase -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js"></script>
@@ -178,16 +202,492 @@ small{color:var(--mute)}
 <script>
 const $ = s => document.querySelector(s), ls = localStorage;
 let role = ls.role, code = ls.code, ref, data = { times: [] }, firedMinute = '';
-let audioCtx, voiceTimer, sirenTimer, localNagTimer;
+let audioCtx, screechLoopTimer, localNagTimer, keepAliveAudio;
+let isSpeakingNow = false, isScreechingNow = false;
 
-// Theme setup
-const setTheme = t => { document.documentElement.dataset.theme = t; ls.theme = t; $('#theme').textContent = t === 'dark' ? 'Light' : 'Dark'; };
-setTheme(ls.theme || 'dark');
-$('#theme').onclick = () => setTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark');
+if ('speechSynthesis' in window) {
+  window.speechSynthesis.getVoices();
+  window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+}
 
-const ok = self.FIREBASE_CONFIG && !self.FIREBASE_CONFIG.apiKey.startsWith('PASTE');
-if (!ok) $('#cfgwarn').classList.remove('hide');
+/* =========================================================
+   THREE.JS MOVIE-ACCURATE 3D ORIGAMI HOWLER ENGINE
+   ========================================================= */
+let scene, camera, renderer, howlerRoot, upperJaw, lowerJaw, tongueGroup;
+let leftBrow, rightBrow, leftWing, rightWing, waxSeal, ribbonLeft, ribbonRight;
+let emberParticles, fireLight, animFrameId, howlerStartTime = 0, howlerActive3D = false;
 
+function init3DHowler() {
+  if (renderer) return;
+  const canvas = $('#howler-canvas');
+  scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x1a0202, 0.06);
+
+  camera = new THREE.PerspectiveCamera(48, window.innerWidth / window.innerHeight, 0.1, 100);
+  camera.position.set(0, 0.2, 7.2);
+
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+
+  // Dramatic Movie Lighting
+  const amb = new THREE.AmbientLight(0xffb3a7, 0.55);
+  scene.add(amb);
+
+  const keyLight = new THREE.DirectionalLight(0xfff0d6, 1.35);
+  keyLight.position.set(3, 5, 6);
+  scene.add(keyLight);
+
+  const rimLight = new THREE.DirectionalLight(0xffaa00, 1.1);
+  rimLight.position.set(-4, -3, -2);
+  scene.add(rimLight);
+
+  fireLight = new THREE.PointLight(0xff2a00, 2.8, 15);
+  fireLight.position.set(0, 0, 2.5);
+  scene.add(fireLight);
+
+  // Materials (Crisp Origami Paper with Flat Shading)
+  const crimsonMat = new THREE.MeshStandardMaterial({
+    color: 0xb80f14, roughness: 0.55, metalness: 0.08, flatShading: true, side: THREE.DoubleSide
+  });
+  const darkCrimsonMat = new THREE.MeshStandardMaterial({
+    color: 0x6e0407, roughness: 0.65, metalness: 0.05, flatShading: true, side: THREE.DoubleSide
+  });
+  const throatMat = new THREE.MeshBasicMaterial({ color: 0x1a0002, side: THREE.DoubleSide });
+  const parchmentMat = new THREE.MeshStandardMaterial({
+    color: 0xf7ebd2, roughness: 0.4, metalness: 0.05, flatShading: true, side: THREE.DoubleSide
+  });
+  const goldMat = new THREE.MeshStandardMaterial({
+    color: 0xe0b243, roughness: 0.3, metalness: 0.75, flatShading: true, side: THREE.DoubleSide
+  });
+  const tongueMat = new THREE.MeshStandardMaterial({
+    color: 0xe62e4d, roughness: 0.45, flatShading: true, side: THREE.DoubleSide
+  });
+  const waxMat = new THREE.MeshStandardMaterial({
+    color: 0x7a0606, roughness: 0.25, metalness: 0.2, flatShading: true
+  });
+
+  howlerRoot = new THREE.Group();
+  scene.add(howlerRoot);
+
+  // 1. Deep Black/Red Throat Cavity & Folded Envelope Backplate
+  const backGeo = new THREE.BoxGeometry(3.4, 2.5, 0.9);
+  const backMesh = new THREE.Mesh(backGeo, darkCrimsonMat);
+  backMesh.position.z = -0.55;
+  howlerRoot.add(backMesh);
+
+  const cavityGeo = new THREE.PlaneGeometry(2.9, 2.0);
+  const cavityMesh = new THREE.Mesh(cavityGeo, throatMat);
+  cavityMesh.position.z = -0.08;
+  howlerRoot.add(cavityMesh);
+
+  // 2. Origami Side Cheek Flaps (Envelope Left & Right Wings)
+  const wingGeo = new THREE.ConeGeometry(1.4, 2.2, 3);
+  leftWing = new THREE.Mesh(wingGeo, crimsonMat);
+  leftWing.rotation.z = Math.PI / 2;
+  leftWing.position.set(-1.95, 0, -0.1);
+  howlerRoot.add(leftWing);
+
+  rightWing = new THREE.Mesh(wingGeo, crimsonMat);
+  rightWing.rotation.z = -Math.PI / 2;
+  rightWing.position.set(1.95, 0, -0.1);
+  howlerRoot.add(rightWing);
+
+  // 3. UPPER JAW GROUP (Origami Cupid's-Bow Crimson Lip + Folded White Paper Teeth)
+  upperJaw = new THREE.Group();
+  upperJaw.position.set(0, 0.35, 0);
+  howlerRoot.add(upperJaw);
+
+  // Sculpted 3D Origami Upper Lip (5-segment folded paper arch)
+  const uLipShape = new THREE.Shape();
+  uLipShape.moveTo(-1.85, 0);
+  uLipShape.lineTo(-1.1, 0.85);
+  uLipShape.lineTo(-0.45, 0.65);
+  uLipShape.lineTo(0, 0.82);
+  uLipShape.lineTo(0.45, 0.65);
+  uLipShape.lineTo(1.1, 0.85);
+  uLipShape.lineTo(1.85, 0);
+  uLipShape.lineTo(1.25, -0.22);
+  uLipShape.lineTo(0, -0.05);
+  uLipShape.lineTo(-1.25, -0.22);
+  uLipShape.closePath();
+
+  const extrudeSettings = { depth: 0.75, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.08, bevelThickness: 0.1 };
+  const uLipGeo = new THREE.ExtrudeGeometry(uLipShape, extrudeSettings);
+  uLipGeo.center();
+  const uLipMesh = new THREE.Mesh(uLipGeo, crimsonMat);
+  uLipMesh.position.set(0, 0.32, 0.35);
+  upperJaw.add(uLipMesh);
+
+  // Gold Trim Border on Upper Lip
+  const uGoldGeo = new THREE.BoxGeometry(3.5, 0.07, 0.82);
+  const uGold = new THREE.Mesh(uGoldGeo, goldMat);
+  uGold.position.set(0, 0.02, 0.36);
+  upperJaw.add(uGold);
+
+  // Upper Row of Origami Folded Parchment Teeth
+  for (let i = -3; i <= 3; i++) {
+    const toothGeo = new THREE.ConeGeometry(0.19, 0.42, 3);
+    const tooth = new THREE.Mesh(toothGeo, parchmentMat);
+    tooth.rotation.x = Math.PI;
+    tooth.position.set(i * 0.39, -0.18, 0.55 - Math.abs(i) * 0.05);
+    upperJaw.add(tooth);
+  }
+
+  // 4. LOWER JAW GROUP (Origami Crimson Chin Flap + Lower Teeth + Articulated Paper Tongue)
+  lowerJaw = new THREE.Group();
+  lowerJaw.position.set(0, -0.35, 0);
+  howlerRoot.add(lowerJaw);
+
+  const lLipShape = new THREE.Shape();
+  lLipShape.moveTo(-1.8, 0.15);
+  lLipShape.lineTo(-1.2, -0.85);
+  lLipShape.lineTo(0, -1.15);
+  lLipShape.lineTo(1.2, -0.85);
+  lLipShape.lineTo(1.8, 0.15);
+  lLipShape.lineTo(1.2, 0.25);
+  lLipShape.lineTo(0, 0.05);
+  lLipShape.lineTo(-1.2, 0.25);
+  lLipShape.closePath();
+
+  const lLipGeo = new THREE.ExtrudeGeometry(lLipShape, extrudeSettings);
+  lLipGeo.center();
+  const lLipMesh = new THREE.Mesh(lLipGeo, crimsonMat);
+  lLipMesh.position.set(0, -0.45, 0.35);
+  lowerJaw.add(lLipMesh);
+
+  // Lower Row of Origami Folded Parchment Teeth
+  for (let i = -3; i <= 3; i++) {
+    const toothGeo = new THREE.ConeGeometry(0.17, 0.38, 3);
+    const tooth = new THREE.Mesh(toothGeo, parchmentMat);
+    tooth.position.set(i * 0.37, 0.12, 0.52 - Math.abs(i) * 0.05);
+    lowerJaw.add(tooth);
+  }
+
+  // Multi-Segment Flapping 3D Origami Tongue
+  tongueGroup = new THREE.Group();
+  tongueGroup.position.set(0, -0.05, 0.1);
+  lowerJaw.add(tongueGroup);
+
+  const tBaseGeo = new THREE.BoxGeometry(1.1, 0.14, 1.25);
+  const tBase = new THREE.Mesh(tBaseGeo, tongueMat);
+  tBase.position.set(0, 0, 0.45);
+  tongueGroup.add(tBase);
+
+  const tTipGeo = new THREE.ConeGeometry(0.62, 0.9, 4);
+  const tTip = new THREE.Mesh(tTipGeo, tongueMat);
+  tTip.rotation.x = Math.PI / 2.3;
+  tTip.position.set(0, 0.12, 1.15);
+  tongueGroup.add(tTip);
+
+  // 5. Angry Folded Origami Eyebrows & Glowing Paper Slit Eyes
+  const browGeo = new THREE.BoxGeometry(1.55, 0.36, 0.55);
+  leftBrow = new THREE.Mesh(browGeo, darkCrimsonMat);
+  leftBrow.position.set(-0.95, 1.45, 0.55);
+  leftBrow.rotation.z = -0.35;
+  howlerRoot.add(leftBrow);
+
+  rightBrow = new THREE.Mesh(browGeo, darkCrimsonMat);
+  rightBrow.position.set(0.95, 1.45, 0.55);
+  rightBrow.rotation.z = 0.35;
+  howlerRoot.add(rightBrow);
+
+  // Angry Glowing Origami Eye Slits
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffea79 });
+  const eyeGeo = new THREE.ConeGeometry(0.28, 0.65, 3);
+  const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
+  leftEye.rotation.z = Math.PI / 2.3;
+  leftEye.position.set(-0.85, 1.18, 0.62);
+  howlerRoot.add(leftEye);
+
+  const rightEye = new THREE.Mesh(eyeGeo, eyeMat);
+  rightEye.rotation.z = -Math.PI / 2.3;
+  rightEye.position.set(0.85, 1.18, 0.62);
+  howlerRoot.add(rightEye);
+
+  // 6. Floating Parchment Ribbon Tails Below the Chin
+  const ribGeo = new THREE.PlaneGeometry(0.42, 2.2, 2, 6);
+  ribbonLeft = new THREE.Mesh(ribGeo, parchmentMat);
+  ribbonLeft.position.set(-0.65, -2.1, 0.1);
+  howlerRoot.add(ribbonLeft);
+
+  ribbonRight = new THREE.Mesh(ribGeo, parchmentMat);
+  ribbonRight.position.set(0.65, -2.1, 0.1);
+  howlerRoot.add(ribbonRight);
+
+  // 7. 3D Wax Seal (Starts locked on envelope, then blasts off when unfolding!)
+  const sealGeo = new THREE.CylinderGeometry(0.65, 0.65, 0.18, 12);
+  waxSeal = new THREE.Mesh(sealGeo, waxMat);
+  waxSeal.rotation.x = Math.PI / 2;
+  waxSeal.position.set(0, 0, 1.15);
+  howlerRoot.add(waxSeal);
+
+  // 8. Swirling Fire Embers & Shredded Paper Particles
+  const pCount = 160;
+  const pGeo = new THREE.BufferGeometry();
+  const pPos = new Float32Array(pCount * 3);
+  for (let i = 0; i < pCount * 3; i += 3) {
+    pPos[i] = (Math.random() - 0.5) * 9;
+    pPos[i + 1] = (Math.random() - 0.5) * 9;
+    pPos[i + 2] = (Math.random() - 0.5) * 5;
+  }
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+  const pMat = new THREE.PointsMaterial({ color: 0xffaa00, size: 0.11, transparent: true, opacity: 0.9 });
+  emberParticles = new THREE.Points(pGeo, pMat);
+  scene.add(emberParticles);
+
+  window.addEventListener('resize', () => {
+    if (!renderer) return;
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+}
+
+function render3DLoop() {
+  if (!howlerActive3D) return;
+  animFrameId = requestAnimationFrame(render3DLoop);
+
+  const elapsed = ( performance.now() - howlerStartTime ) / 1000;
+  const t = performance.now() * 0.001;
+
+  // STAGE 1 (0.0s - 1.0s): Closed Trembling Envelope
+  if (elapsed < 1.0) {
+    const tremor = 0.14;
+    howlerRoot.position.set(
+      (Math.random() - 0.5) * tremor,
+      Math.sin(t * 25) * 0.1,
+      -1.5 + elapsed * 1.5
+    );
+    howlerRoot.rotation.set(0, 0, (Math.random() - 0.5) * 0.25);
+    upperJaw.rotation.x = 0.28; // Closed flat like envelope flap
+    lowerJaw.rotation.x = -0.28;
+    waxSeal.visible = true;
+    waxSeal.position.set(0, 0, 1.15);
+    waxSeal.rotation.z = t * 4;
+  }
+  // STAGE 2 (1.0s - 1.6s): Wax Seal Explodes Off & Origami Unfolds into Face
+  else if (elapsed < 1.6) {
+    const p = (elapsed - 1.0) / 0.6;
+    waxSeal.position.z = 1.15 + p * 6.5;
+    waxSeal.position.y = -p * 2.5;
+    waxSeal.rotation.x += 0.35;
+    upperJaw.rotation.x = 0.28 - p * 0.85;
+    lowerJaw.rotation.x = -0.28 + p * 0.95;
+    howlerRoot.rotation.y = Math.sin(t * 18) * 0.22;
+  }
+  // STAGE 3 (1.6s+): Full Screaming 3D Origami Face Synced to Voice & Screech
+  else {
+    waxSeal.visible = false;
+
+    // Calculate live mouth opening from syllable cadence & screech state
+    let mouthOpen = 0.15;
+    if (isScreechingNow) {
+      // Wide-open agonizing banshee jaw + rapid throat vibration
+      mouthOpen = 0.95 + Math.sin(t * 55) * 0.18;
+    } else if (isSpeakingNow) {
+      // Realistic syllable lip-sync movement ("MA-RI-A! HAVE YOU TA-KEN...")
+      mouthOpen = Math.abs(Math.sin(t * 14)) * 0.68 + Math.abs(Math.cos(t * 23)) * 0.28;
+    } else {
+      // Angry heavy breathing between sentences
+      mouthOpen = 0.18 + Math.sin(t * 4) * 0.1;
+    }
+
+    // Drive 3D Upper & Lower Origami Jaws
+    upperJaw.rotation.x = -mouthOpen * 0.62;
+    lowerJaw.rotation.x = mouthOpen * 0.82;
+
+    // Stretch mouth width & flare cheek wings as it screams
+    const stretch = 1 + mouthOpen * 0.22;
+    upperJaw.scale.x = stretch;
+    lowerJaw.scale.x = stretch;
+    leftWing.rotation.y = -mouthOpen * 0.55;
+    rightWing.rotation.y = mouthOpen * 0.55;
+
+    // Flap & curl the 3D paper tongue violently
+    tongueGroup.rotation.x = -0.2 + Math.sin(t * 38) * 0.35 * mouthOpen;
+    tongueGroup.position.z = 0.1 + mouthOpen * 0.28;
+
+    // Furrow angry origami eyebrows
+    leftBrow.rotation.z = -0.32 - mouthOpen * 0.25;
+    rightBrow.rotation.z = 0.32 + mouthOpen * 0.25;
+    leftBrow.position.y = 1.42 + Math.sin(t * 30) * 0.06;
+    rightBrow.position.y = 1.42 + Math.cos(t * 30) * 0.06;
+
+    // Lunge 3D head forward toward the screen on loud syllables
+    const lungeZ = mouthOpen > 0.65 ? 0.85 : 0.15;
+    howlerRoot.position.x = Math.sin(t * 32) * 0.08 * mouthOpen;
+    howlerRoot.position.y = Math.cos(t * 27) * 0.08 * mouthOpen;
+    howlerRoot.position.z += (lungeZ - howlerRoot.position.z) * 0.18;
+
+    howlerRoot.rotation.z = Math.sin(t * 17) * 0.12 * mouthOpen;
+    howlerRoot.rotation.y = Math.sin(t * 9) * 0.22;
+    howlerRoot.rotation.x = Math.cos(t * 11) * 0.1;
+
+    // Wave bottom ribbons in the wind of the scream
+    ribbonLeft.rotation.z = 0.15 + Math.sin(t * 22) * 0.28;
+    ribbonRight.rotation.z = -0.15 + Math.cos(t * 22) * 0.28;
+  }
+
+  // Swirl fire embers upward
+  const pos = emberParticles.geometry.attributes.position.array;
+  for (let i = 1; i < pos.length; i += 3) {
+    pos[i] += 0.065;
+    if (pos[i] > 4.5) pos[i] = -4.5;
+  }
+  emberParticles.geometry.attributes.position.needsUpdate = true;
+  fireLight.intensity = 2.2 + Math.random() * 1.8;
+
+  renderer.render(scene, camera);
+}
+
+/* =========================================================
+   AGONIZING SCREECH + VOICE ENGINE (SYNCED TO 3D JAWS)
+   ========================================================= */
+function makeDistortionCurve(amount = 750) {
+  const n = 44100, curve = new Float32Array(n), deg = Math.PI / 180;
+  for (let i = 0; i < n; ++i) {
+    const x = i * 2 / n - 1;
+    curve[i] = (3 + amount) * x * 20 * deg / (Math.PI + amount * Math.abs(x));
+  }
+  return curve;
+}
+
+function blastAgonizingScreech() {
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    isScreechingNow = true;
+    setTimeout(() => { isScreechingNow = false; }, 1650);
+
+    const now = audioCtx.currentTime;
+    const distortion = audioCtx.createWaveShaper();
+    distortion.curve = makeDistortionCurve(850);
+    distortion.oversample = '4x';
+
+    const comp = audioCtx.createDynamicsCompressor();
+    comp.threshold.setValueAtTime(-4, now);
+    comp.ratio.setValueAtTime(20, now);
+
+    const master = audioCtx.createGain();
+    master.gain.setValueAtTime(1.0, now);
+    distortion.connect(comp);
+    comp.connect(master);
+    master.connect(audioCtx.destination);
+
+    // Paper-ripping burst
+    const bufSize = audioCtx.sampleRate * 0.35;
+    const noiseBuf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
+    const out = noiseBuf.getChannelData(0);
+    for (let i = 0; i < bufSize; i++) out[i] = Math.random() * 2 - 1;
+    const noise = audioCtx.createBufferSource();
+    noise.buffer = noiseBuf;
+    const nGain = audioCtx.createGain();
+    nGain.gain.setValueAtTime(0.95, now);
+    nGain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+    noise.connect(nGain); nGain.connect(distortion);
+    noise.start(now);
+
+    // Three Dissonant Shrieking Banshee Oscillators
+    [960, 1420, 2180].forEach((baseFreq, idx) => {
+      const osc = audioCtx.createOscillator();
+      const lfo = audioCtx.createOscillator();
+      const lfoGain = audioCtx.createGain();
+      const oscGain = audioCtx.createGain();
+
+      osc.type = idx % 2 === 0 ? 'sawtooth' : 'square';
+      lfo.type = 'sawtooth';
+      lfo.frequency.setValueAtTime(34 + idx * 8, now);
+      lfoGain.gain.setValueAtTime(440, now);
+
+      lfo.connect(lfoGain);
+      lfoGain.connect(osc.frequency);
+
+      osc.frequency.setValueAtTime(baseFreq * 0.7, now);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.7, now + 0.45);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.85, now + 0.9);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.85, now + 1.35);
+      osc.frequency.exponentialRampToValueAtTime(baseFreq * 0.6, now + 1.65);
+
+      oscGain.gain.setValueAtTime(0.88, now);
+      oscGain.gain.exponentialRampToValueAtTime(0.01, now + 1.7);
+
+      osc.connect(oscGain);
+      oscGain.connect(distortion);
+
+      lfo.start(now);
+      osc.start(now);
+      lfo.stop(now + 1.7);
+      osc.stop(now + 1.7);
+    });
+  } catch (e) {}
+}
+
+function screamVoiceNow(mode) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  const txt = mode === 'saturday'
+    ? "MARIA! HAVE YOU TAKEN YOUR MEDICINES OR NOT?! TODAY IS SATURDAY! TAKE YOUR METHORA MEDICINE FOR YOUR KNEE ARTHRITIS RIGHT NOW! DO NOT BE SCARED, IT WILL HEAL YOUR KNEES!"
+    : "MARIA! HAVE YOU TAKEN YOUR MEDICINES OR NOT?! TAKE YOUR MEDICINE RIGHT NOW! DO NOT IGNORE THIS HOWLER!";
+
+  const u = new SpeechSynthesisUtterance(txt);
+  u.rate = 1.15;
+  u.pitch = 1.32;
+  u.volume = 1.0;
+
+  isSpeakingNow = true;
+  u.onstart = () => { isSpeakingNow = true; };
+  u.onend = () => { isSpeakingNow = false; };
+  u.onerror = () => { isSpeakingNow = false; };
+
+  window.speechSynthesis.speak(u);
+}
+
+function startRelentlessHowler(mode) {
+  stopRelentlessHowler();
+  $('#howler').classList.toggle('saturday', mode === 'saturday');
+  $('#sat-notice').classList.toggle('hide', mode !== 'saturday');
+  $('#howler').classList.remove('hide');
+
+  if (document.documentElement.requestFullscreen) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+
+  // Launch 3D WebGL Scene
+  init3DHowler();
+  howlerActive3D = true;
+  howlerStartTime = performance.now();
+  render3DLoop();
+
+  // Blast Screech & Voice
+  blastAgonizingScreech();
+  setTimeout(() => screamVoiceNow(mode), 1100);
+  if (navigator.vibrate) navigator.vibrate([800, 150, 800, 150, 1200]);
+
+  screechLoopTimer = setInterval(() => {
+    blastAgonizingScreech();
+    setTimeout(() => screamVoiceNow(mode), 1100);
+    if (navigator.vibrate) navigator.vibrate([800, 150, 800, 150, 1200]);
+  }, 6000);
+}
+
+function stopRelentlessHowler() {
+  howlerActive3D = false;
+  cancelAnimationFrame(animFrameId);
+  clearInterval(screechLoopTimer);
+  isSpeakingNow = false;
+  isScreechingNow = false;
+  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+  if (document.fullscreenElement && document.exitFullscreen) {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+/* =========================================================
+   APP PAIRING, FIREBASE SYNC & 10-MIN NAGGING LOOP
+   ========================================================= */
 function show(id) {
   ['setup', 'mum', 'son'].forEach(s => $('#' + s).classList.toggle('hide', s !== id));
   $('#reset').classList.toggle('hide', id === 'setup');
@@ -195,26 +695,53 @@ function show(id) {
 
 document.querySelectorAll('[data-role]').forEach(b => b.onclick = () => {
   const c = $('#code').value.trim().toLowerCase();
-  if (c.length < 6 || !ok) { $('#code').value = ''; $('#code').placeholder = 'Enter 6+ char code (& check firebase-config.js)'; return; }
+  if (c.length < 6) { $('#code').value = ''; $('#code').placeholder = 'Enter 6+ characters'; return; }
   ls.role = role = b.dataset.role; ls.code = code = c; start();
 });
 
-$('#reset').onclick = () => { if (confirm('Reset role on this phone?')) { delete ls.role; delete ls.code; location.reload(); } };
+$('#reset').onclick = () => { if (confirm('Change phone role or pairing code?')) { delete ls.role; delete ls.code; location.reload(); } };
 
-// Wake Lock & Audio Unlocker for Mum's Phone
+// Silent Keep-Alive Audio so Android never puts Maria's tab to sleep
+function createSilentKeepAlive() {
+  const sampleRate = 8000, numSamples = 8000;
+  const buffer = new ArrayBuffer(44 + numSamples * 2);
+  const view = new DataView(buffer);
+  const writeStr = (off, s) => { for (let i = 0; i < s.length; i++) view.setUint8(off + i, s.charCodeAt(i)); };
+  writeStr(0, 'RIFF'); view.setUint32(4, 36 + numSamples * 2, true); writeStr(8, 'WAVE');
+  writeStr(12, 'fmt '); view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+  view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true);
+  view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
+  writeStr(36, 'data'); view.setUint32(40, numSamples * 2, true);
+  const blob = new Blob([buffer], { type: 'audio/wav' });
+  keepAliveAudio = new Audio(URL.createObjectURL(blob));
+  keepAliveAudio.loop = true;
+  keepAliveAudio.volume = 0.01;
+  keepAliveAudio.play().catch(() => {});
+}
+
 $('#arm-audio').onclick = async () => {
-  try {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    await audioCtx.resume();
-    speakHowler("Howler voice connected for Maria.", false);
-    if ('wakeLock' in navigator) await navigator.wakeLock.request('screen').catch(()=>{});
-    $('#arm-msg').textContent = '✅ Voice & Screen Wake Lock active!';
-    $('#arm-audio').textContent = '🔊 Howler Voice Ready';
-  } catch (e) { $('#arm-msg').textContent = 'Tap again to enable audio.'; }
+  createSilentKeepAlive();
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  audioCtx.resume();
+  if ('wakeLock' in navigator) {
+    try { await navigator.wakeLock.request('screen'); } catch (e) {}
+  }
+  if ('Notification' in window && Notification.permission !== 'granted') {
+    await Notification.requestPermission().catch(() => {});
+  }
+  $('#keepalive-pill').textContent = '🟢 ARMED 24/7';
+  $('#keepalive-pill').className = 'badge nag';
+  $('#arm-msg').textContent = '✅ 3D Howler Armed! Leave this screen open or minimized.';
+  $('#arm-audio').textContent = '🔊 ARMED (Tap to Preview 3D Howler)';
+  startRelentlessHowler(new Date().getDay() === 6 ? 'saturday' : 'regular');
 };
 
+// Preview 3D Movie Howler Buttons
+$('#preview-mum').onclick = () => startRelentlessHowler(new Date().getDay() === 6 ? 'saturday' : 'regular');
+$('#preview-son').onclick = () => startRelentlessHowler(new Date().getDay() === 6 ? 'saturday' : 'regular');
+
 function start() {
-  if (!ok || !role || !code) return show('setup');
+  if (!role || !code) return show('setup');
   if (!firebase.apps.length) firebase.initializeApp(self.FIREBASE_CONFIG);
   ref = firebase.firestore().collection('pillPairs').doc(code);
   ref.set({ updated: Date.now() }, { merge: true });
@@ -229,11 +756,10 @@ function start() {
   show(role);
   $('#topic-mum').textContent = 'owlpost-' + code;
   $('#topic-son').textContent = 'owlpost-' + code + '-son';
-  setInterval(tickLoop, 15000);
+  setInterval(tickLoop, 10000);
 }
 
 function render() {
-  // Render times on both phones
   const timesHtml = data.times.map(t =>
     `<div class="row"><span>⏰ <b>${t}</b></span>${role === 'son' ? `<button class="ghost" data-t="${t}" style="flex:0;min-height:36px;padding:6px 12px">Remove</button>` : ''}</div>`
   ).join('') || '<p><small>No daily times set yet.</small></p>';
@@ -245,47 +771,33 @@ function render() {
     ref.update({ times: firebase.firestore.FieldValue.arrayRemove(b.dataset.t) })
   );
 
-  // Saturday check on Mum's dashboard
-  const isSat = new Date().getDay() === 6;
-  if (isSat) {
-    $('#mum-greeting').textContent = '🌟 Saturday: Methora Dose Day';
-    $('#mum-sub').textContent = 'Special high-dose knee arthritis medicine today. Do not be afraid—it helps your knees!';
-  }
-
-  // Son's live status display
   const badge = $('#nag-badge');
   if (data.nagging) {
-    badge.textContent = '🔥 NAGGING EVERY 10M';
+    badge.textContent = '🔥 3D HOWLER ACTIVE';
     badge.className = 'badge nag';
     $('#stop-nag').classList.remove('hide');
   } else {
-    badge.textContent = '✅ All Clear';
+    badge.textContent = '✅ Quiet';
     badge.className = 'badge';
     $('#stop-nag').classList.add('hide');
   }
 
   if (data.lastStatus === 'not_yet' && data.nagging) {
-    $('#status').textContent = '⚠️ Maria pressed "NO (Not Yet)" at ' + new Date(data.lastNotYetAt).toLocaleTimeString();
-    $('#sub-status').textContent = 'Howler is repeating every 10 minutes until she takes it.';
+    $('#status').textContent = '⚠️ Maria tapped "NO" at ' + new Date(data.lastNotYetAt).toLocaleTimeString();
+    $('#sub-status').textContent = '3D Howler is repeating every 10 minutes.';
   } else if (data.takenAt) {
-    $('#status').textContent = '✅ Maria took her medicine at ' + new Date(data.takenAt).toLocaleString();
-    $('#sub-status').textContent = data.lastTakenType === 'saturday' ? 'Included Saturday Methora Arthritis Dose!' : 'Regular daily dose confirmed.';
-  } else {
-    $('#status').textContent = 'Waiting for today\'s first dose.';
+    $('#status').textContent = '✅ Maria took medicine: ' + new Date(data.takenAt).toLocaleString();
+    $('#sub-status').textContent = data.lastTakenType === 'saturday' ? 'Saturday Methora Dose confirmed!' : 'Daily dose confirmed.';
   }
 }
 
-// Son controls: Add times & Presets
 $('#addtime').onclick = () => {
   const v = $('#newtime').value;
   if (v) ref.update({ times: firebase.firestore.FieldValue.arrayUnion(v) });
 };
-$('#preset3').onclick = () => {
-  ref.update({ times: ['09:00', '14:00', '21:00'] });
-};
+$('#preset3').onclick = () => ref.update({ times: ['09:00', '14:00', '21:00'] });
 
-// Trigger Howler helper (used by Son button, scheduled times, and 10-min nag)
-function triggerHowlerNow(type = 'regular', reason = 'Manual Howler') {
+function triggerHowlerNow(type = 'regular') {
   const isSat = type === 'saturday' || new Date().getDay() === 6;
   const mode = isSat ? 'saturday' : 'regular';
   const now = Date.now();
@@ -297,18 +809,13 @@ function triggerHowlerNow(type = 'regular', reason = 'Manual Howler') {
     nextNagAt: now + 10 * 60 * 1000
   });
 
-  const msgBody = mode === 'saturday'
-    ? 'MARIA, HAVE YOU TAKEN YOUR MEDICINES OR NOT? Today is Saturday — take your Methora knee arthritis medicine calmly!'
-    : 'MARIA, HAVE YOU TAKEN YOUR MEDICINES OR NOT? Tap to answer the Howler!';
-
-  // Immediate push to Mum's phone via ntfy.sh
   fetch('https://ntfy.sh/owlpost-' + code, {
     method: 'POST',
-    body: msgBody,
+    body: 'MARIA!! HAVE YOU TAKEN YOUR MEDICINES OR NOT?! TAP TO OPEN 3D HOWLER!',
     headers: {
-      Title: mode === 'saturday' ? '🌟 SATURDAY METHORA HOWLER!' : '🦉 A HOWLER HAS ARRIVED!',
+      Title: '🦉🔥 A HOWLER HAS ARRIVED FOR MARIA!',
       Priority: 'max',
-      Tags: 'envelope,warning',
+      Tags: 'rotating_light,envelope',
       Click: location.origin + location.pathname
     }
   }).catch(() => {});
@@ -316,150 +823,84 @@ function triggerHowlerNow(type = 'regular', reason = 'Manual Howler') {
 
 $('#send').onclick = () => {
   triggerHowlerNow('regular');
-  $('#send').textContent = '🔥 HOWLER SENT TO MARIA!';
-  setTimeout(() => $('#send').textContent = '📮 SEND DIRECT HOWLER NOW', 2500);
+  $('#send').textContent = '🔥 3D HOWLER BLASTING!';
+  setTimeout(() => $('#send').textContent = '🔥 BLAST 3D HOWLER TO MARIA', 2000);
 };
 
 $('#send-sat').onclick = () => {
   triggerHowlerNow('saturday');
-  $('#send-sat').textContent = '✨ SATURDAY METHORA HOWLER SENT!';
-  setTimeout(() => $('#send-sat').textContent = '✨ Send Saturday "Methora" Howler (Arthritis Dose)', 2500);
+  $('#send-sat').textContent = '🌟 METHORA 3D HOWLER SENT!';
+  setTimeout(() => $('#send-sat').textContent = '🌟 Blast Saturday "Methora" 3D Howler', 2000);
 };
 
-$('#stop-nag').onclick = () => {
-  ref.update({ nagging: false, nextNagAt: 0 });
-};
+$('#stop-nag').onclick = () => ref.update({ nagging: false, nextNagAt: 0 });
 
-// Sound & Speech Engine ("Maria, have you taken your medicines or not?")
-function playSirenBurst() {
-  try {
-    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    audioCtx.resume();
-    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
-    osc.type = 'sawtooth';
-    osc.frequency.setValueAtTime(320, audioCtx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(620, audioCtx.currentTime + 0.35);
-    osc.frequency.exponentialRampToValueAtTime(280, audioCtx.currentTime + 0.7);
-    gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.75);
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(audioCtx.currentTime + 0.75);
-  } catch (e) {}
-}
-
-function speakHowler(text, loop = true) {
-  if (!('speechSynthesis' in window)) return;
-  window.speechSynthesis.cancel();
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.rate = 0.95;
-  utter.pitch = 1.05;
-  utter.volume = 1.0;
-  window.speechSynthesis.speak(utter);
-}
-
-function startHowlerAudio(mode) {
-  stopHowlerAudio();
-  const speechText = mode === 'saturday'
-    ? "Maria, have you taken your medicines or not? Today is Saturday. Please take your Methora medicine for your knee arthritis. Do not be scared, it will make your knees feel much better!"
-    : "Maria, have you taken your medicines or not? Please take your medicine right now!";
-
-  playSirenBurst();
-  speakHowler(speechText);
-  if (navigator.vibrate) navigator.vibrate([500, 200, 500, 200, 800]);
-
-  voiceTimer = setInterval(() => {
-    playSirenBurst();
-    speakHowler(speechText);
-    if (navigator.vibrate) navigator.vibrate([500, 200, 500]);
-  }, 7500);
-}
-
-function stopHowlerAudio() {
-  clearInterval(voiceTimer);
-  clearInterval(sirenTimer);
-  if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-}
-
-// Receiver: Show Howler on Mum's Phone
 function checkHowler() {
   if (role !== 'mum' || !data.howlerAt) return;
   if (!data.nagging) {
     $('#howler').classList.add('hide');
-    stopHowlerAudio();
+    stopRelentlessHowler();
     return;
   }
   if (data.howlerAt <= +(ls.seen || 0)) return;
 
   ls.seen = data.howlerAt;
   const isSat = data.howlerMode === 'saturday' || new Date().getDay() === 6;
-  $('#env-box').classList.toggle('saturday', isSat);
-  $('#sat-notice').classList.toggle('hide', !isSat);
-  $('#howler').classList.remove('hide');
-  // Open immediately and start speaking so she hears it right away
-  $('#sealed').classList.add('hide');
-  $('#msg').classList.remove('hide');
-  startHowlerAudio(isSat ? 'saturday' : 'regular');
+  startRelentlessHowler(isSat ? 'saturday' : 'regular');
 }
 
-$('#open').onclick = () => {
-  $('#sealed').classList.add('hide');
-  $('#msg').classList.remove('hide');
-  const isSat = data.howlerMode === 'saturday' || new Date().getDay() === 6;
-  startHowlerAudio(isSat ? 'saturday' : 'regular');
-};
-
-// When Maria clicks YES (Taken)
 function markTaken() {
-  stopHowlerAudio();
+  stopRelentlessHowler();
   clearTimeout(localNagTimer);
   const isSat = data.howlerMode === 'saturday' || new Date().getDay() === 6;
   $('#howler').classList.add('hide');
-  ref.update({
-    takenAt: Date.now(),
-    nagging: false,
-    nextNagAt: 0,
-    lastStatus: 'taken',
-    lastTakenType: isSat ? 'saturday' : 'regular'
-  });
 
-  // Notify Son's phone
+  if (ref) {
+    ref.update({
+      takenAt: Date.now(),
+      nagging: false,
+      nextNagAt: 0,
+      lastStatus: 'taken',
+      lastTakenType: isSat ? 'saturday' : 'regular'
+    });
+  }
+
   fetch('https://ntfy.sh/owlpost-' + code + '-son', {
     method: 'POST',
-    body: isSat ? '✅ Maria just took her Saturday Methora medicine!' : '✅ Maria just took her daily medicine!',
-    headers: { Title: 'Owl Post Confirmation', Tags: 'white_check_mark' }
+    body: '✅ Maria took her medicine and silenced the 3D Howler!',
+    headers: { Title: 'Medicine Taken', Tags: 'white_check_mark' }
   }).catch(() => {});
 }
 
 $('#taken').onclick = markTaken;
 $('#took').onclick = markTaken;
 
-// When Maria clicks NO (Not Yet) -> Triggers 10-Minute Relentless Nagging
 $('#notyet').onclick = () => {
-  stopHowlerAudio();
+  stopRelentlessHowler();
   $('#howler').classList.add('hide');
   const now = Date.now(), nextNag = now + 10 * 60 * 1000;
   const isSat = data.howlerMode === 'saturday' || new Date().getDay() === 6;
 
-  ref.update({
-    lastStatus: 'not_yet',
-    lastNotYetAt: now,
-    nagging: true,
-    nextNagAt: nextNag
-  });
+  if (ref) {
+    ref.update({
+      lastStatus: 'not_yet',
+      lastNotYetAt: now,
+      nagging: true,
+      nextNagAt: nextNag
+    });
+  }
 
-  // 1. Alert Son's phone immediately that she clicked NO
   fetch('https://ntfy.sh/owlpost-' + code + '-son', {
     method: 'POST',
-    body: '⚠️ Maria clicked NO (Not Yet)! The Howler will scream again in 10 minutes.',
-    headers: { Title: 'Maria Missed Medicine!', Priority: 'high', Tags: 'warning' }
+    body: '⚠️ Maria clicked NO! 3D Howler will scream again in 10 minutes.',
+    headers: { Title: 'Maria Clicked NO!', Priority: 'max', Tags: 'warning' }
   }).catch(() => {});
 
-  // 2. Schedule a 10-minute delayed push on ntfy.sh (works even if both apps are closed!)
   fetch('https://ntfy.sh/owlpost-' + code, {
     method: 'POST',
-    body: '10 minutes are up! MARIA, HAVE YOU TAKEN YOUR MEDICINES OR NOT?',
+    body: '10 MINUTES ARE UP! MARIA, HAVE YOU TAKEN YOUR MEDICINES OR NOT?!',
     headers: {
-      Title: '🦉 HOWLER REMINDER (10 MIN NAG)',
+      Title: '🦉🔥 10-MIN HOWLER REMINDER!',
       Priority: 'max',
       Delay: '10m',
       Tags: 'rotating_light',
@@ -467,41 +908,28 @@ $('#notyet').onclick = () => {
     }
   }).catch(() => {});
 
-  // 3. Local 10-minute fallback timer
   clearTimeout(localNagTimer);
   localNagTimer = setTimeout(() => {
-    if (data.nagging) triggerHowlerNow(isSat ? 'saturday' : 'regular', '10m Nag');
+    if (data.nagging) triggerHowlerNow(isSat ? 'saturday' : 'regular');
   }, 10 * 60 * 1000);
 };
 
-// Check 3 Daily Scheduled Times & 10-Minute Nagging Loop every 15 seconds
 function tickLoop() {
   const n = new Date();
   const hm = String(n.getHours()).padStart(2, '0') + ':' + String(n.getMinutes()).padStart(2, '0');
-
-  // Fire at scheduled daily times
   if (data.times && data.times.includes(hm) && firedMinute !== hm) {
     firedMinute = hm;
-    triggerHowlerNow(n.getDay() === 6 ? 'saturday' : 'regular', 'Scheduled Time');
+    triggerHowlerNow(n.getDay() === 6 ? 'saturday' : 'regular');
   }
-
-  // Re-fire Howler if 10-minute nag timer has expired and she still hasn't taken it
   if (data.nagging && data.nextNagAt && Date.now() >= data.nextNagAt) {
-    triggerHowlerNow(data.howlerMode || 'regular', '10m Nag Repeat');
+    triggerHowlerNow(data.howlerMode || 'regular');
   }
 }
 
-// Browser Notification Permission
 $('#notif').onclick = async () => {
-  try {
-    if (await Notification.requestPermission() !== 'granted') return $('#notifmsg').textContent = 'Blocked in settings.';
-    const reg = await navigator.serviceWorker.register('firebase-messaging-sw.js');
-    $('#notifmsg').textContent = '✅ Browser notifications enabled!';
-    if (self.VAPID_KEY && !self.VAPID_KEY.startsWith('PASTE')) {
-      const token = await firebase.messaging().getToken({ vapidKey: self.VAPID_KEY, serviceWorkerRegistration: reg });
-      await ref.update({ mumToken: token });
-    }
-  } catch (e) { $('#notifmsg').textContent = 'Notifications enabled for local alarms.'; }
+  if (await Notification.requestPermission() === 'granted') {
+    $('#notifmsg').textContent = '✅ Alerts enabled!';
+  }
 };
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('firebase-messaging-sw.js');
