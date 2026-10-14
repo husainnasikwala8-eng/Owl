@@ -32,8 +32,9 @@ input{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--
 /* 3D MOVIE HOWLER FULLSCREEN STAGE */
 #howler{
   position:fixed;inset:0;width:100vw;height:100vh;z-index:2147483647;
-  background:radial-gradient(circle at center,#4a0404 0%,#080101 100%);
+  background:radial-gradient(circle at center,#5e0404 0%,#080101 100%);
   overflow:hidden;display:flex;flex-direction:column;justify-content:space-between;
+  touch-action:none;
 }
 #howler.saturday{
   background:radial-gradient(circle at center,#4c1070 0%,#09010f 100%);
@@ -47,12 +48,12 @@ input{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--
 .subtitles{
   font-family:Cinzel,serif;font-weight:900;font-size:23px;line-height:1.2;
   color:#fff8e7;text-shadow:0 3px 0 #000,0 0 22px #ff1e1e,0 0 40px #ffd166;
-  background:rgba(20,0,0,0.68);border:2px solid #ffd166aa;border-radius:12px;
+  background:rgba(20,0,0,0.75);border:2px solid #ffd166;border-radius:12px;
   padding:10px 14px;max-width:440px;margin:0 auto;
   animation:subPulse .22s infinite alternate;
 }
 .sat-banner{
-  background:rgba(35,5,55,0.88);border:2px solid #ffd166;border-radius:10px;
+  background:rgba(35,5,55,0.92);border:2px solid #ffd166;border-radius:10px;
   padding:10px 12px;margin:8px auto 0;max-width:440px;font-size:17px;color:#ffd166;
   text-shadow:0 2px 4px #000;
 }
@@ -67,9 +68,9 @@ input{font:inherit;background:var(--bg);color:var(--ink);border:1px solid var(--
   box-shadow:0 6px 30px #000d;
 }
 .btn-no-massive{
-  background:rgba(40,0,0,0.85)!important;color:#ffccd5!important;
+  background:rgba(40,0,0,0.88)!important;color:#ffccd5!important;
   border:2px solid #ff4d6d!important;font-size:18px!important;padding:13px!important;
-  border-radius:12px;backdrop-filter:blur(4px);
+  border-radius:12px;
 }
 @keyframes subPulse{from{transform:scale(0.98)}to{transform:scale(1.02)}}
 @keyframes strobe{from{opacity:1}to{opacity:.35}}
@@ -100,7 +101,7 @@ small{color:var(--mute)}
 <section id="mum" class="hide">
   <div class="card" style="border:2px solid #ffd166;background:#3b1111">
     <h2>⚠️ Step 1: Arm 24/7 3D Howler</h2>
-    <p style="margin:6px 0">Tap once so Maria's phone stays awake in the background and launches the 3D Howler <b>instantly</b>:</p>
+    <p style="margin:6px 0">Tap once so Maria's phone unlocks the 3D audio engine:</p>
     <button id="arm-audio" style="width:100%;font-size:19px;background:#ffd166;color:#3b1111">
       🔒 ARM ALWAYS-ON 3D HOWLER
     </button>
@@ -124,10 +125,7 @@ small{color:var(--mute)}
 
   <div class="card">
     <h2>Background Push Topic (ntfy)</h2>
-    <p>In the <b>ntfy</b> app on Maria's phone, subscribe to:</p>
     <p style="background:#0006;padding:10px;border-radius:6px;font-family:monospace;font-size:18px"><b id="topic-mum"></b></p>
-    <button id="notif" class="ghost" style="width:100%">Enable Browser Alerts</button>
-    <small id="notifmsg"></small>
   </div>
 </section>
 
@@ -151,6 +149,16 @@ small{color:var(--mute)}
     🛑 Silence Howler / Stop 10-Min Nagging
   </button>
 
+  <div class="card" style="border-color:#ffd166">
+    <h2>⚡ Force Screen Takeover While Scrolling</h2>
+    <p><small>Paste Maria's MacroDroid Webhook URL below so clicking "Blast Howler" forces her phone to close other apps, set volume to 100%, and pop the 3D Howler over her screen:</small></p>
+    <div class="row">
+      <input id="webhook-url" placeholder="https://trigger.macrodroid.com/...">
+      <button id="save-webhook" style="flex:0">Save</button>
+    </div>
+    <small id="webhook-saved" style="color:#80ed99"></small>
+  </div>
+
   <div class="card">
     <h2>Set Maria's 3 Daily Medicine Times</h2>
     <div id="son-times"></div>
@@ -165,7 +173,6 @@ small{color:var(--mute)}
 
   <div class="card">
     <h2>Your Phone Alerts (ntfy)</h2>
-    <p>Subscribe in your <b>ntfy</b> app to get instant replies:</p>
     <p style="background:#0006;padding:10px;border-radius:6px;font-family:monospace;font-size:18px"><b id="topic-son"></b></p>
   </div>
 </section>
@@ -193,7 +200,6 @@ small{color:var(--mute)}
   </div>
 </div>
 
-<!-- Three.js 3D Engine + Firebase -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
@@ -203,7 +209,12 @@ small{color:var(--mute)}
 const $ = s => document.querySelector(s), ls = localStorage;
 let role = ls.role, code = ls.code, ref, data = { times: [] }, firedMinute = '';
 let audioCtx, screechLoopTimer, localNagTimer, keepAliveAudio;
-let isSpeakingNow = false, isScreechingNow = false;
+let isSpeakingNow = false, isScreechingNow = false, currentHowlerMode = 'regular';
+
+// If opened via ?howler=1 from MacroDroid/Notification, auto-assume Maria's phone if role not set
+const urlParams = new URLSearchParams(location.search);
+if (urlParams.get('code') && !ls.code) { ls.code = code = urlParams.get('code'); }
+if (urlParams.get('howler') === '1' && !ls.role) { ls.role = role = 'mum'; }
 
 if ('speechSynthesis' in window) {
   window.speechSynthesis.getVoices();
@@ -229,13 +240,9 @@ function init3DHowler() {
   renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
 
-  // Dramatic Movie Lighting
-  const amb = new THREE.AmbientLight(0xffb3a7, 0.55);
-  scene.add(amb);
-
-  const keyLight = new THREE.DirectionalLight(0xfff0d6, 1.35);
+  scene.add(new THREE.AmbientLight(0xffb3a7, 0.6));
+  const keyLight = new THREE.DirectionalLight(0xfff0d6, 1.4);
   keyLight.position.set(3, 5, 6);
   scene.add(keyLight);
 
@@ -247,42 +254,25 @@ function init3DHowler() {
   fireLight.position.set(0, 0, 2.5);
   scene.add(fireLight);
 
-  // Materials (Crisp Origami Paper with Flat Shading)
-  const crimsonMat = new THREE.MeshStandardMaterial({
-    color: 0xb80f14, roughness: 0.55, metalness: 0.08, flatShading: true, side: THREE.DoubleSide
-  });
-  const darkCrimsonMat = new THREE.MeshStandardMaterial({
-    color: 0x6e0407, roughness: 0.65, metalness: 0.05, flatShading: true, side: THREE.DoubleSide
-  });
+  const crimsonMat = new THREE.MeshStandardMaterial({ color: 0xb80f14, roughness: 0.55, metalness: 0.08, flatShading: true, side: THREE.DoubleSide });
+  const darkCrimsonMat = new THREE.MeshStandardMaterial({ color: 0x6e0407, roughness: 0.65, metalness: 0.05, flatShading: true, side: THREE.DoubleSide });
   const throatMat = new THREE.MeshBasicMaterial({ color: 0x1a0002, side: THREE.DoubleSide });
-  const parchmentMat = new THREE.MeshStandardMaterial({
-    color: 0xf7ebd2, roughness: 0.4, metalness: 0.05, flatShading: true, side: THREE.DoubleSide
-  });
-  const goldMat = new THREE.MeshStandardMaterial({
-    color: 0xe0b243, roughness: 0.3, metalness: 0.75, flatShading: true, side: THREE.DoubleSide
-  });
-  const tongueMat = new THREE.MeshStandardMaterial({
-    color: 0xe62e4d, roughness: 0.45, flatShading: true, side: THREE.DoubleSide
-  });
-  const waxMat = new THREE.MeshStandardMaterial({
-    color: 0x7a0606, roughness: 0.25, metalness: 0.2, flatShading: true
-  });
+  const parchmentMat = new THREE.MeshStandardMaterial({ color: 0xf7ebd2, roughness: 0.4, metalness: 0.05, flatShading: true, side: THREE.DoubleSide });
+  const goldMat = new THREE.MeshStandardMaterial({ color: 0xe0b243, roughness: 0.3, metalness: 0.75, flatShading: true, side: THREE.DoubleSide });
+  const tongueMat = new THREE.MeshStandardMaterial({ color: 0xe62e4d, roughness: 0.45, flatShading: true, side: THREE.DoubleSide });
+  const waxMat = new THREE.MeshStandardMaterial({ color: 0x7a0606, roughness: 0.25, metalness: 0.2, flatShading: true });
 
   howlerRoot = new THREE.Group();
   scene.add(howlerRoot);
 
-  // 1. Deep Black/Red Throat Cavity & Folded Envelope Backplate
-  const backGeo = new THREE.BoxGeometry(3.4, 2.5, 0.9);
-  const backMesh = new THREE.Mesh(backGeo, darkCrimsonMat);
+  const backMesh = new THREE.Mesh(new THREE.BoxGeometry(3.4, 2.5, 0.9), darkCrimsonMat);
   backMesh.position.z = -0.55;
   howlerRoot.add(backMesh);
 
-  const cavityGeo = new THREE.PlaneGeometry(2.9, 2.0);
-  const cavityMesh = new THREE.Mesh(cavityGeo, throatMat);
+  const cavityMesh = new THREE.Mesh(new THREE.PlaneGeometry(2.9, 2.0), throatMat);
   cavityMesh.position.z = -0.08;
   howlerRoot.add(cavityMesh);
 
-  // 2. Origami Side Cheek Flaps (Envelope Left & Right Wings)
   const wingGeo = new THREE.ConeGeometry(1.4, 2.2, 3);
   leftWing = new THREE.Mesh(wingGeo, crimsonMat);
   leftWing.rotation.z = Math.PI / 2;
@@ -294,23 +284,14 @@ function init3DHowler() {
   rightWing.position.set(1.95, 0, -0.1);
   howlerRoot.add(rightWing);
 
-  // 3. UPPER JAW GROUP (Origami Cupid's-Bow Crimson Lip + Folded White Paper Teeth)
   upperJaw = new THREE.Group();
   upperJaw.position.set(0, 0.35, 0);
   howlerRoot.add(upperJaw);
 
-  // Sculpted 3D Origami Upper Lip (5-segment folded paper arch)
   const uLipShape = new THREE.Shape();
-  uLipShape.moveTo(-1.85, 0);
-  uLipShape.lineTo(-1.1, 0.85);
-  uLipShape.lineTo(-0.45, 0.65);
-  uLipShape.lineTo(0, 0.82);
-  uLipShape.lineTo(0.45, 0.65);
-  uLipShape.lineTo(1.1, 0.85);
-  uLipShape.lineTo(1.85, 0);
-  uLipShape.lineTo(1.25, -0.22);
-  uLipShape.lineTo(0, -0.05);
-  uLipShape.lineTo(-1.25, -0.22);
+  uLipShape.moveTo(-1.85, 0); uLipShape.lineTo(-1.1, 0.85); uLipShape.lineTo(-0.45, 0.65);
+  uLipShape.lineTo(0, 0.82); uLipShape.lineTo(0.45, 0.65); uLipShape.lineTo(1.1, 0.85);
+  uLipShape.lineTo(1.85, 0); uLipShape.lineTo(1.25, -0.22); uLipShape.lineTo(0, -0.05); uLipShape.lineTo(-1.25, -0.22);
   uLipShape.closePath();
 
   const extrudeSettings = { depth: 0.75, bevelEnabled: true, bevelSegments: 2, steps: 1, bevelSize: 0.08, bevelThickness: 0.1 };
@@ -320,35 +301,25 @@ function init3DHowler() {
   uLipMesh.position.set(0, 0.32, 0.35);
   upperJaw.add(uLipMesh);
 
-  // Gold Trim Border on Upper Lip
-  const uGoldGeo = new THREE.BoxGeometry(3.5, 0.07, 0.82);
-  const uGold = new THREE.Mesh(uGoldGeo, goldMat);
+  const uGold = new THREE.Mesh(new THREE.BoxGeometry(3.5, 0.07, 0.82), goldMat);
   uGold.position.set(0, 0.02, 0.36);
   upperJaw.add(uGold);
 
-  // Upper Row of Origami Folded Parchment Teeth
   for (let i = -3; i <= 3; i++) {
-    const toothGeo = new THREE.ConeGeometry(0.19, 0.42, 3);
-    const tooth = new THREE.Mesh(toothGeo, parchmentMat);
+    const tooth = new THREE.Mesh(new THREE.ConeGeometry(0.19, 0.42, 3), parchmentMat);
     tooth.rotation.x = Math.PI;
     tooth.position.set(i * 0.39, -0.18, 0.55 - Math.abs(i) * 0.05);
     upperJaw.add(tooth);
   }
 
-  // 4. LOWER JAW GROUP (Origami Crimson Chin Flap + Lower Teeth + Articulated Paper Tongue)
   lowerJaw = new THREE.Group();
   lowerJaw.position.set(0, -0.35, 0);
   howlerRoot.add(lowerJaw);
 
   const lLipShape = new THREE.Shape();
-  lLipShape.moveTo(-1.8, 0.15);
-  lLipShape.lineTo(-1.2, -0.85);
-  lLipShape.lineTo(0, -1.15);
-  lLipShape.lineTo(1.2, -0.85);
-  lLipShape.lineTo(1.8, 0.15);
-  lLipShape.lineTo(1.2, 0.25);
-  lLipShape.lineTo(0, 0.05);
-  lLipShape.lineTo(-1.2, 0.25);
+  lLipShape.moveTo(-1.8, 0.15); lLipShape.lineTo(-1.2, -0.85); lLipShape.lineTo(0, -1.15);
+  lLipShape.lineTo(1.2, -0.85); lLipShape.lineTo(1.8, 0.15); lLipShape.lineTo(1.2, 0.25);
+  lLipShape.lineTo(0, 0.05); lLipShape.lineTo(-1.2, 0.25);
   lLipShape.closePath();
 
   const lLipGeo = new THREE.ExtrudeGeometry(lLipShape, extrudeSettings);
@@ -357,31 +328,25 @@ function init3DHowler() {
   lLipMesh.position.set(0, -0.45, 0.35);
   lowerJaw.add(lLipMesh);
 
-  // Lower Row of Origami Folded Parchment Teeth
   for (let i = -3; i <= 3; i++) {
-    const toothGeo = new THREE.ConeGeometry(0.17, 0.38, 3);
-    const tooth = new THREE.Mesh(toothGeo, parchmentMat);
+    const tooth = new THREE.Mesh(new THREE.ConeGeometry(0.17, 0.38, 3), parchmentMat);
     tooth.position.set(i * 0.37, 0.12, 0.52 - Math.abs(i) * 0.05);
     lowerJaw.add(tooth);
   }
 
-  // Multi-Segment Flapping 3D Origami Tongue
   tongueGroup = new THREE.Group();
   tongueGroup.position.set(0, -0.05, 0.1);
   lowerJaw.add(tongueGroup);
 
-  const tBaseGeo = new THREE.BoxGeometry(1.1, 0.14, 1.25);
-  const tBase = new THREE.Mesh(tBaseGeo, tongueMat);
+  const tBase = new THREE.Mesh(new THREE.BoxGeometry(1.1, 0.14, 1.25), tongueMat);
   tBase.position.set(0, 0, 0.45);
   tongueGroup.add(tBase);
 
-  const tTipGeo = new THREE.ConeGeometry(0.62, 0.9, 4);
-  const tTip = new THREE.Mesh(tTipGeo, tongueMat);
+  const tTip = new THREE.Mesh(new THREE.ConeGeometry(0.62, 0.9, 4), tongueMat);
   tTip.rotation.x = Math.PI / 2.3;
   tTip.position.set(0, 0.12, 1.15);
   tongueGroup.add(tTip);
 
-  // 5. Angry Folded Origami Eyebrows & Glowing Paper Slit Eyes
   const browGeo = new THREE.BoxGeometry(1.55, 0.36, 0.55);
   leftBrow = new THREE.Mesh(browGeo, darkCrimsonMat);
   leftBrow.position.set(-0.95, 1.45, 0.55);
@@ -393,7 +358,6 @@ function init3DHowler() {
   rightBrow.rotation.z = 0.35;
   howlerRoot.add(rightBrow);
 
-  // Angry Glowing Origami Eye Slits
   const eyeMat = new THREE.MeshBasicMaterial({ color: 0xffea79 });
   const eyeGeo = new THREE.ConeGeometry(0.28, 0.65, 3);
   const leftEye = new THREE.Mesh(eyeGeo, eyeMat);
@@ -406,7 +370,6 @@ function init3DHowler() {
   rightEye.position.set(0.85, 1.18, 0.62);
   howlerRoot.add(rightEye);
 
-  // 6. Floating Parchment Ribbon Tails Below the Chin
   const ribGeo = new THREE.PlaneGeometry(0.42, 2.2, 2, 6);
   ribbonLeft = new THREE.Mesh(ribGeo, parchmentMat);
   ribbonLeft.position.set(-0.65, -2.1, 0.1);
@@ -416,14 +379,11 @@ function init3DHowler() {
   ribbonRight.position.set(0.65, -2.1, 0.1);
   howlerRoot.add(ribbonRight);
 
-  // 7. 3D Wax Seal (Starts locked on envelope, then blasts off when unfolding!)
-  const sealGeo = new THREE.CylinderGeometry(0.65, 0.65, 0.18, 12);
-  waxSeal = new THREE.Mesh(sealGeo, waxMat);
+  waxSeal = new THREE.Mesh(new THREE.CylinderGeometry(0.65, 0.65, 0.18, 12), waxMat);
   waxSeal.rotation.x = Math.PI / 2;
   waxSeal.position.set(0, 0, 1.15);
   howlerRoot.add(waxSeal);
 
-  // 8. Swirling Fire Embers & Shredded Paper Particles
   const pCount = 160;
   const pGeo = new THREE.BufferGeometry();
   const pPos = new Float32Array(pCount * 3);
@@ -433,8 +393,7 @@ function init3DHowler() {
     pPos[i + 2] = (Math.random() - 0.5) * 5;
   }
   pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
-  const pMat = new THREE.PointsMaterial({ color: 0xffaa00, size: 0.11, transparent: true, opacity: 0.9 });
-  emberParticles = new THREE.Points(pGeo, pMat);
+  emberParticles = new THREE.Points(pGeo, new THREE.PointsMaterial({ color: 0xffaa00, size: 0.11, transparent: true, opacity: 0.9 }));
   scene.add(emberParticles);
 
   window.addEventListener('resize', () => {
@@ -449,88 +408,58 @@ function render3DLoop() {
   if (!howlerActive3D) return;
   animFrameId = requestAnimationFrame(render3DLoop);
 
-  const elapsed = ( performance.now() - howlerStartTime ) / 1000;
+  const elapsed = (performance.now() - howlerStartTime) / 1000;
   const t = performance.now() * 0.001;
 
-  // STAGE 1 (0.0s - 1.0s): Closed Trembling Envelope
-  if (elapsed < 1.0) {
-    const tremor = 0.14;
-    howlerRoot.position.set(
-      (Math.random() - 0.5) * tremor,
-      Math.sin(t * 25) * 0.1,
-      -1.5 + elapsed * 1.5
-    );
+  if (elapsed < 0.9) {
+    howlerRoot.position.set((Math.random() - 0.5) * 0.15, Math.sin(t * 25) * 0.1, -1.2 + elapsed * 1.3);
     howlerRoot.rotation.set(0, 0, (Math.random() - 0.5) * 0.25);
-    upperJaw.rotation.x = 0.28; // Closed flat like envelope flap
+    upperJaw.rotation.x = 0.28;
     lowerJaw.rotation.x = -0.28;
     waxSeal.visible = true;
     waxSeal.position.set(0, 0, 1.15);
-    waxSeal.rotation.z = t * 4;
-  }
-  // STAGE 2 (1.0s - 1.6s): Wax Seal Explodes Off & Origami Unfolds into Face
-  else if (elapsed < 1.6) {
-    const p = (elapsed - 1.0) / 0.6;
+  } else if (elapsed < 1.45) {
+    const p = (elapsed - 0.9) / 0.55;
     waxSeal.position.z = 1.15 + p * 6.5;
     waxSeal.position.y = -p * 2.5;
     waxSeal.rotation.x += 0.35;
     upperJaw.rotation.x = 0.28 - p * 0.85;
     lowerJaw.rotation.x = -0.28 + p * 0.95;
     howlerRoot.rotation.y = Math.sin(t * 18) * 0.22;
-  }
-  // STAGE 3 (1.6s+): Full Screaming 3D Origami Face Synced to Voice & Screech
-  else {
+  } else {
     waxSeal.visible = false;
-
-    // Calculate live mouth opening from syllable cadence & screech state
-    let mouthOpen = 0.15;
+    let mouthOpen = 0.22;
     if (isScreechingNow) {
-      // Wide-open agonizing banshee jaw + rapid throat vibration
       mouthOpen = 0.95 + Math.sin(t * 55) * 0.18;
     } else if (isSpeakingNow) {
-      // Realistic syllable lip-sync movement ("MA-RI-A! HAVE YOU TA-KEN...")
       mouthOpen = Math.abs(Math.sin(t * 14)) * 0.68 + Math.abs(Math.cos(t * 23)) * 0.28;
     } else {
-      // Angry heavy breathing between sentences
-      mouthOpen = 0.18 + Math.sin(t * 4) * 0.1;
+      mouthOpen = Math.abs(Math.sin(t * 11)) * 0.55 + 0.15;
     }
 
-    // Drive 3D Upper & Lower Origami Jaws
     upperJaw.rotation.x = -mouthOpen * 0.62;
     lowerJaw.rotation.x = mouthOpen * 0.82;
-
-    // Stretch mouth width & flare cheek wings as it screams
     const stretch = 1 + mouthOpen * 0.22;
     upperJaw.scale.x = stretch;
     lowerJaw.scale.x = stretch;
     leftWing.rotation.y = -mouthOpen * 0.55;
     rightWing.rotation.y = mouthOpen * 0.55;
-
-    // Flap & curl the 3D paper tongue violently
     tongueGroup.rotation.x = -0.2 + Math.sin(t * 38) * 0.35 * mouthOpen;
     tongueGroup.position.z = 0.1 + mouthOpen * 0.28;
-
-    // Furrow angry origami eyebrows
     leftBrow.rotation.z = -0.32 - mouthOpen * 0.25;
     rightBrow.rotation.z = 0.32 + mouthOpen * 0.25;
-    leftBrow.position.y = 1.42 + Math.sin(t * 30) * 0.06;
-    rightBrow.position.y = 1.42 + Math.cos(t * 30) * 0.06;
 
-    // Lunge 3D head forward toward the screen on loud syllables
     const lungeZ = mouthOpen > 0.65 ? 0.85 : 0.15;
     howlerRoot.position.x = Math.sin(t * 32) * 0.08 * mouthOpen;
     howlerRoot.position.y = Math.cos(t * 27) * 0.08 * mouthOpen;
     howlerRoot.position.z += (lungeZ - howlerRoot.position.z) * 0.18;
-
     howlerRoot.rotation.z = Math.sin(t * 17) * 0.12 * mouthOpen;
     howlerRoot.rotation.y = Math.sin(t * 9) * 0.22;
-    howlerRoot.rotation.x = Math.cos(t * 11) * 0.1;
 
-    // Wave bottom ribbons in the wind of the scream
     ribbonLeft.rotation.z = 0.15 + Math.sin(t * 22) * 0.28;
     ribbonRight.rotation.z = -0.15 + Math.cos(t * 22) * 0.28;
   }
 
-  // Swirl fire embers upward
   const pos = emberParticles.geometry.attributes.position.array;
   for (let i = 1; i < pos.length; i += 3) {
     pos[i] += 0.065;
@@ -538,14 +467,13 @@ function render3DLoop() {
   }
   emberParticles.geometry.attributes.position.needsUpdate = true;
   fireLight.intensity = 2.2 + Math.random() * 1.8;
-
   renderer.render(scene, camera);
 }
 
 /* =========================================================
-   AGONIZING SCREECH + VOICE ENGINE (SYNCED TO 3D JAWS)
+   AGONIZING SCREECH + VOICE ENGINE
    ========================================================= */
-function makeDistortionCurve(amount = 750) {
+function makeDistortionCurve(amount = 850) {
   const n = 44100, curve = new Float32Array(n), deg = Math.PI / 180;
   for (let i = 0; i < n; ++i) {
     const x = i * 2 / n - 1;
@@ -567,17 +495,11 @@ function blastAgonizingScreech() {
     distortion.curve = makeDistortionCurve(850);
     distortion.oversample = '4x';
 
-    const comp = audioCtx.createDynamicsCompressor();
-    comp.threshold.setValueAtTime(-4, now);
-    comp.ratio.setValueAtTime(20, now);
-
     const master = audioCtx.createGain();
     master.gain.setValueAtTime(1.0, now);
-    distortion.connect(comp);
-    comp.connect(master);
+    distortion.connect(master);
     master.connect(audioCtx.destination);
 
-    // Paper-ripping burst
     const bufSize = audioCtx.sampleRate * 0.35;
     const noiseBuf = audioCtx.createBuffer(1, bufSize, audioCtx.sampleRate);
     const out = noiseBuf.getChannelData(0);
@@ -590,7 +512,6 @@ function blastAgonizingScreech() {
     noise.connect(nGain); nGain.connect(distortion);
     noise.start(now);
 
-    // Three Dissonant Shrieking Banshee Oscillators
     [960, 1420, 2180].forEach((baseFreq, idx) => {
       const osc = audioCtx.createOscillator();
       const lfo = audioCtx.createOscillator();
@@ -617,10 +538,8 @@ function blastAgonizingScreech() {
       osc.connect(oscGain);
       oscGain.connect(distortion);
 
-      lfo.start(now);
-      osc.start(now);
-      lfo.stop(now + 1.7);
-      osc.stop(now + 1.7);
+      lfo.start(now); osc.start(now);
+      lfo.stop(now + 1.7); osc.stop(now + 1.7);
     });
   } catch (e) {}
 }
@@ -633,35 +552,28 @@ function screamVoiceNow(mode) {
     : "MARIA! HAVE YOU TAKEN YOUR MEDICINES OR NOT?! TAKE YOUR MEDICINE RIGHT NOW! DO NOT IGNORE THIS HOWLER!";
 
   const u = new SpeechSynthesisUtterance(txt);
-  u.rate = 1.15;
-  u.pitch = 1.32;
-  u.volume = 1.0;
-
+  u.rate = 1.15; u.pitch = 1.32; u.volume = 1.0;
   isSpeakingNow = true;
   u.onstart = () => { isSpeakingNow = true; };
   u.onend = () => { isSpeakingNow = false; };
   u.onerror = () => { isSpeakingNow = false; };
-
   window.speechSynthesis.speak(u);
 }
 
 function startRelentlessHowler(mode) {
-  stopRelentlessHowler();
+  currentHowlerMode = mode;
   $('#howler').classList.toggle('saturday', mode === 'saturday');
   $('#sat-notice').classList.toggle('hide', mode !== 'saturday');
   $('#howler').classList.remove('hide');
 
-  if (document.documentElement.requestFullscreen) {
-    document.documentElement.requestFullscreen().catch(() => {});
+  if (!howlerActive3D) {
+    init3DHowler();
+    howlerActive3D = true;
+    howlerStartTime = performance.now();
+    render3DLoop();
   }
 
-  // Launch 3D WebGL Scene
-  init3DHowler();
-  howlerActive3D = true;
-  howlerStartTime = performance.now();
-  render3DLoop();
-
-  // Blast Screech & Voice
+  clearInterval(screechLoopTimer);
   blastAgonizingScreech();
   setTimeout(() => screamVoiceNow(mode), 1100);
   if (navigator.vibrate) navigator.vibrate([800, 150, 800, 150, 1200]);
@@ -680,13 +592,33 @@ function stopRelentlessHowler() {
   isSpeakingNow = false;
   isScreechingNow = false;
   if ('speechSynthesis' in window) window.speechSynthesis.cancel();
-  if (document.fullscreenElement && document.exitFullscreen) {
-    document.exitFullscreen().catch(() => {});
-  }
 }
 
+// MID-SCROLL THUMB HIJACK: If she is scrolling when the window pops up, her finger touch immediately unlocks Chrome audio & fullscreen!
+window.addEventListener('touchstart', e => {
+  if (!howlerActive3D) return;
+  if (e.target.id === 'taken' || e.target.id === 'notyet') return;
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === 'suspended') {
+    audioCtx.resume();
+    blastAgonizingScreech();
+    setTimeout(() => screamVoiceNow(currentHowlerMode), 900);
+  }
+  if (document.documentElement.requestFullscreen && !document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  }
+}, { passive: true });
+
+// Whenever tab becomes visible again, immediately check and blast if nagging is active
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden && role === 'mum' && data.nagging) {
+    const isSat = data.howlerMode === 'saturday' || new Date().getDay() === 6;
+    startRelentlessHowler(isSat ? 'saturday' : 'regular');
+  }
+});
+
 /* =========================================================
-   APP PAIRING, FIREBASE SYNC & 10-MIN NAGGING LOOP
+   FIREBASE SYNC, MACRODROID WEBHOOK & 10-MIN NAGGING LOOP
    ========================================================= */
 function show(id) {
   ['setup', 'mum', 'son'].forEach(s => $('#' + s).classList.toggle('hide', s !== id));
@@ -701,7 +633,6 @@ document.querySelectorAll('[data-role]').forEach(b => b.onclick = () => {
 
 $('#reset').onclick = () => { if (confirm('Change phone role or pairing code?')) { delete ls.role; delete ls.code; location.reload(); } };
 
-// Silent Keep-Alive Audio so Android never puts Maria's tab to sleep
 function createSilentKeepAlive() {
   const sampleRate = 8000, numSamples = 8000;
   const buffer = new ArrayBuffer(44 + numSamples * 2);
@@ -712,8 +643,7 @@ function createSilentKeepAlive() {
   view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true);
   view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true); view.setUint16(34, 16, true);
   writeStr(36, 'data'); view.setUint32(40, numSamples * 2, true);
-  const blob = new Blob([buffer], { type: 'audio/wav' });
-  keepAliveAudio = new Audio(URL.createObjectURL(blob));
+  keepAliveAudio = new Audio(URL.createObjectURL(new Blob([buffer], { type: 'audio/wav' })));
   keepAliveAudio.loop = true;
   keepAliveAudio.volume = 0.01;
   keepAliveAudio.play().catch(() => {});
@@ -723,20 +653,13 @@ $('#arm-audio').onclick = async () => {
   createSilentKeepAlive();
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   audioCtx.resume();
-  if ('wakeLock' in navigator) {
-    try { await navigator.wakeLock.request('screen'); } catch (e) {}
-  }
-  if ('Notification' in window && Notification.permission !== 'granted') {
-    await Notification.requestPermission().catch(() => {});
-  }
+  if ('wakeLock' in navigator) { try { await navigator.wakeLock.request('screen'); } catch (e) {} }
   $('#keepalive-pill').textContent = '🟢 ARMED 24/7';
   $('#keepalive-pill').className = 'badge nag';
-  $('#arm-msg').textContent = '✅ 3D Howler Armed! Leave this screen open or minimized.';
-  $('#arm-audio').textContent = '🔊 ARMED (Tap to Preview 3D Howler)';
+  $('#arm-msg').textContent = '✅ 3D Howler Armed!';
   startRelentlessHowler(new Date().getDay() === 6 ? 'saturday' : 'regular');
 };
 
-// Preview 3D Movie Howler Buttons
 $('#preview-mum').onclick = () => startRelentlessHowler(new Date().getDay() === 6 ? 'saturday' : 'regular');
 $('#preview-son').onclick = () => startRelentlessHowler(new Date().getDay() === 6 ? 'saturday' : 'regular');
 
@@ -749,6 +672,7 @@ function start() {
   ref.onSnapshot(s => {
     data = s.data() || { times: [] };
     data.times = (data.times || []).sort();
+    if (data.webhookUrl && !$('#webhook-url').value) $('#webhook-url').value = data.webhookUrl;
     render();
     checkHowler();
   });
@@ -758,6 +682,12 @@ function start() {
   $('#topic-son').textContent = 'owlpost-' + code + '-son';
   setInterval(tickLoop, 10000);
 }
+
+$('#save-webhook').onclick = () => {
+  const u = $('#webhook-url').value.trim();
+  ref.update({ webhookUrl: u });
+  $('#webhook-saved').textContent = '✅ Screen-Hijack Webhook Saved!';
+};
 
 function render() {
   const timesHtml = data.times.map(t =>
@@ -801,6 +731,7 @@ function triggerHowlerNow(type = 'regular') {
   const isSat = type === 'saturday' || new Date().getDay() === 6;
   const mode = isSat ? 'saturday' : 'regular';
   const now = Date.now();
+  const appUrl = location.origin + location.pathname + '?howler=1&code=' + encodeURIComponent(code);
 
   ref.update({
     howlerAt: now,
@@ -809,21 +740,27 @@ function triggerHowlerNow(type = 'regular') {
     nextNagAt: now + 10 * 60 * 1000
   });
 
+  // 1. If MacroDroid Webhook is configured, directly force Maria's screen to switch from WhatsApp/Reels to the 3D Howler!
+  if (data.webhookUrl) {
+    fetch(data.webhookUrl, { mode: 'no-cors' }).catch(() => {});
+  }
+
+  // 2. Also fire ntfy high-priority push with auto-open Click URL
   fetch('https://ntfy.sh/owlpost-' + code, {
     method: 'POST',
-    body: 'MARIA!! HAVE YOU TAKEN YOUR MEDICINES OR NOT?! TAP TO OPEN 3D HOWLER!',
+    body: 'MARIA!! HAVE YOU TAKEN YOUR MEDICINES OR NOT?!',
     headers: {
       Title: '🦉🔥 A HOWLER HAS ARRIVED FOR MARIA!',
       Priority: 'max',
       Tags: 'rotating_light,envelope',
-      Click: location.origin + location.pathname
+      Click: appUrl
     }
   }).catch(() => {});
 }
 
 $('#send').onclick = () => {
   triggerHowlerNow('regular');
-  $('#send').textContent = '🔥 3D HOWLER BLASTING!';
+  $('#send').textContent = '🔥 HIJACKING MARIA\'S SCREEN!';
   setTimeout(() => $('#send').textContent = '🔥 BLAST 3D HOWLER TO MARIA', 2000);
 };
 
@@ -835,16 +772,14 @@ $('#send-sat').onclick = () => {
 
 $('#stop-nag').onclick = () => ref.update({ nagging: false, nextNagAt: 0 });
 
+// FIXED: Removed ls.seen blocker! Whenever data.nagging is true, the 3D Howler ALWAYS takes over!
 function checkHowler() {
-  if (role !== 'mum' || !data.howlerAt) return;
+  if (role !== 'mum') return;
   if (!data.nagging) {
     $('#howler').classList.add('hide');
     stopRelentlessHowler();
     return;
   }
-  if (data.howlerAt <= +(ls.seen || 0)) return;
-
-  ls.seen = data.howlerAt;
   const isSat = data.howlerMode === 'saturday' || new Date().getDay() === 6;
   startRelentlessHowler(isSat ? 'saturday' : 'regular');
 }
@@ -880,6 +815,7 @@ $('#notyet').onclick = () => {
   $('#howler').classList.add('hide');
   const now = Date.now(), nextNag = now + 10 * 60 * 1000;
   const isSat = data.howlerMode === 'saturday' || new Date().getDay() === 6;
+  const appUrl = location.origin + location.pathname + '?howler=1&code=' + encodeURIComponent(code);
 
   if (ref) {
     ref.update({
@@ -892,7 +828,7 @@ $('#notyet').onclick = () => {
 
   fetch('https://ntfy.sh/owlpost-' + code + '-son', {
     method: 'POST',
-    body: '⚠️ Maria clicked NO! 3D Howler will scream again in 10 minutes.',
+    body: '⚠️ Maria clicked NO! 3D Howler will hijack her screen again in 10 minutes.',
     headers: { Title: 'Maria Clicked NO!', Priority: 'max', Tags: 'warning' }
   }).catch(() => {});
 
@@ -904,7 +840,7 @@ $('#notyet').onclick = () => {
       Priority: 'max',
       Delay: '10m',
       Tags: 'rotating_light',
-      Click: location.origin + location.pathname
+      Click: appUrl
     }
   }).catch(() => {});
 
@@ -925,12 +861,6 @@ function tickLoop() {
     triggerHowlerNow(data.howlerMode || 'regular');
   }
 }
-
-$('#notif').onclick = async () => {
-  if (await Notification.requestPermission() === 'granted') {
-    $('#notifmsg').textContent = '✅ Alerts enabled!';
-  }
-};
 
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('firebase-messaging-sw.js');
 start();
