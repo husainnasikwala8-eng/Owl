@@ -1,14 +1,11 @@
-// FILL TOMORROW: paste values from Firebase console (Project settings > Your apps)
-// Uses `self` so both index.html and firebase-messaging-sw.js can read it.
 self.FIREBASE_CONFIG = {
-  apiKey: "PASTE_API_KEY",
-  authDomain: "PASTE_AUTH_DOMAIN",
-  projectId: "PASTE_PROJECT_ID",
-  messagingSenderId: "PASTE_SENDER_ID",
-  appId: "PASTE_APP_ID"
+  apiKey: "AIzaSyBhg_dYrCQ7zECeAW16jZQlsV_TX5wMkIU",
+  authDomain: "owl-post-2ba64.firebaseapp.com",
+  projectId: "owl-post-2ba64",
+  storageBucket: "owl-post-2ba64.firebasestorage.app",
+  messagingSenderId: "1070913490633",
+  appId: "1:1070913490633:web:67e43c183a7df9b2cf0718"
 };
-// Project settings > Cloud Messaging > Web Push certificates > public key
+
 self.VAPID_KEY = "PASTE_VAPID_PUBLIC_KEY";
-// NEXT FILE (worker.js on Cloudflare): paste its URL here for closed-app pushes and scheduled alarms.
-// Leave empty until then; the app still works while open.
 self.WORKER_URL = "";
